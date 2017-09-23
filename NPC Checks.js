@@ -100,8 +100,7 @@ on("chat:message", function(msg){
     if(msg.type != "api") return;
     
     if(msg.content.indexOf("!skillChecks ") !== -1){
-        let input = msg.content.replace("!skillChecks ","").split(" ");
-        let char = getChar(input[0]);
+        let char = getChar(msg.content.replace("!skillChecks ",""));
         let skillString = "{{name=" + char.get("name") + "'s Skills}} ";
         let attributes = getAttrs(char);
         
@@ -119,8 +118,7 @@ on("chat:message", function(msg){
         
         sendChat("character|" + char.get("id"), "/w gm &{template:default} " + skillString);
     }else if(msg.content.indexOf("!saves ") !== -1){
-        let input = msg.content.replace("!saves ","").split(" ");
-        let char = getChar(input[0]);
+        let char = getChar(msg.content.replace("!saves ",""));
         let saveString = "{{name=" + char.get("name") + "'s Saves}} ";
         let attributes = getAttrs(char);
 
