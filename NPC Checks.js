@@ -44,13 +44,13 @@ function getOutputBySkill(skillName, currentValue){
             outputVal += "{{Perception=[[1d20+" + currentValue + "]]}} ";
             break;
         case "physicalscience":
-            outputVal += "{{PhysicalScience=[[1d20+" + currentValue + "]]}} ";
+            outputVal += "{{Physical Science=[[1d20+" + currentValue + "]]}} ";
             break;
         case "piloting":
             outputVal += "{{Piloting=[[1d20+" + currentValue + "]]}} ";
             break;
         case "sensemotive":
-            outputVal += "{{SenseMotive=[[1d20+" + currentValue + "]]}} ";
+            outputVal += "{{Sense Motive=[[1d20+" + currentValue + "]]}} ";
             break;
         case "sleightofhand":
             outputVal += "{{Sleight Of Hand=[[1d20+" + currentValue + "]]}} ";
