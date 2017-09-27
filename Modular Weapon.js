@@ -74,7 +74,7 @@ on("chat:message", function(msg){
             specialString += "}}";
         }
         
-        if (toHitDie > 1){
+        if (toHitDie == 20){
             damageBase += "+" + weapon["damage"] + "+" + damageBonus;
             criticalString += "{{Critical!=";
             if(weapon["critical effect"]){
