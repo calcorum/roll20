@@ -37,7 +37,6 @@ on("chat:message", function(msg){
             damageBonus += parseInt(getAttrByName(char.get("id"), "damagebonus"));
         }
         
-        
         if (toHitDie == 20){
             damageBase += " + " + weapon["damage"];
             criticalString += "{{Critical!=";
