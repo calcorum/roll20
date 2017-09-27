@@ -87,8 +87,8 @@ on("chat:message", function(msg){
         }
         
         sendChat("character|" + char.get("id"), whisper + "&{template:default} {{name=" + char.get("name") + " / " + 
-            weapon["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]}} {{Damage=[[" + damageBase + "+" + damageBonus +
-            "]]}} " + criticalString);
+            weapon["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]}} {{Damage=[[" + 
+            damageBase + "+" + damageBonus + "]] " + weapon["damageType"] + "}} " + criticalString);
     }else if(msg.content.indexOf("!throwgrenade ") !== -1){
         let input = msg.content.replace("!throwgrenade ","").split(" --");
         let char = getChar(input[0]);
