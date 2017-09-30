@@ -5,6 +5,11 @@ let weaponList = {
     "longsword":{"name":"Longsword", "damage":"1d8", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"}, 
     "survivalknife":{"name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength"}, 
     "artillerylaserazimuth":{"name":"Artillery Laser, Azimuth", "damage":"1d10", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity", "special":"Penetrating"},
+    "huchketrifle":{"name":"Huchket Rifle", "damage":"1d10", "damageType":"P", "critical effect":"wound", "critical effect damage":"1t[CriticalWounds]", "toHitAttribute":"dexterity"}, 
+    "membraneholdoutpistol":{"name":"Membrane Holdout Pistol", "damage":"1d6", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity"}, 
+    "club":{"name":"Club", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog, archaic"}, 
+    "hammerassault":{"name":"Hammer, Assault", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"},
+    "unarmedstrike":{"name":"Unarmed Strike", "damage":"1d3", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Archaic, nonlethal"}, 
 };
 let grenadeList = {
     "fraggrenade1":{"name":"Frag Grenade I", "level":"1", "effect":"[[1d6]] P, 15 ft."},
@@ -23,8 +28,8 @@ function getChar(charName){
     })[0];
 }
 
-// Syntax: !fireweapon [CHARACTER_NAME] --[WEAPON]
-// Example: !skillChecks Manticore --laserpistolazimuth
+// Syntax: !fireweapon [CHARACTER_ID] --[WEAPON]
+// Example: !fireweapon @{character_id} --laserpistolazimuth
 
 on("chat:message", function(msg){
     if(msg.type != "api") return;
@@ -33,7 +38,7 @@ on("chat:message", function(msg){
         let rawInput = msg.content.replace("!fireweapon ","");
         if(rawInput.indexOf(" --") !== -1){
             let input = rawInput.split(" --");
-            let char = getChar(input[0]);
+            let char = getObj('character',input[0]);
             let weapon = weaponList[input[1].toLowerCase()];
             // Parameter checks
             if(char == undefined){
@@ -46,6 +51,10 @@ on("chat:message", function(msg){
             
             // Calculate the hit die
             let toHitDie = randomInteger(20);
+            if(getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"]) == undefined){
+                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its To-Hit attribute.");
+                return;
+            }
             let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"])-10)/2));
             if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
                 toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
@@ -56,7 +65,6 @@ on("chat:message", function(msg){
             let damageBonus = 0;
             if (weapon["toDamageAttribute"]){
                 damageBonus += parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toDamageAttribute"])-10)/2));
-                log("bonus damage after gun: " + damageBonus);
             }
             let whisper = "";
             let specialString = "";
@@ -65,13 +73,12 @@ on("chat:message", function(msg){
             if(getAttrByName(char.get("id"), "npc") == "yes"){
                 whisper = "/w gm ";
                 damageBonus += parseInt(getAttrByName(char.get("id"), "damagebonus"));
-                log("bonus damage after char: " + damageBonus);
             }
             
-            if(weapon["special"]){
+            if(weapon["special"] != undefined){
                 specialString += "{{Special=" + weapon["special"];
                 if(weapon["specialDice"]){
-                    specialString += "[[" + weapon["specialDice"] + "]]";
+                    specialString += " [[" + weapon["specialDice"] + "]]";
                 }
                 specialString += "}}";
             }
@@ -90,15 +97,15 @@ on("chat:message", function(msg){
             
             sendChat("character|" + char.get("id"), whisper + "&{template:default} {{name=" + char.get("name") + " / " + 
                 weapon["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]}} {{Damage=[[" + 
-                damageBase + "+" + damageBonus + "]] " + weapon["damageType"] + "}} " + criticalString);
+                damageBase + "+" + damageBonus + "]] " + weapon["damageType"] + "}} " + specialString + criticalString );
         }else sendChat("character|" + getChar("Clippy").get("id"), "/w " + msg.who + " Oh my god, what a loser. You fucked the gun syntax up...again.")
         
     }else if(msg.content.indexOf("!throwgrenade ") !== -1){
         let rawInput = msg.content.replace("!throwgrenade ","");
         if(rawInput.indexOf(" --") !== -1){
             let input = rawInput.split(" --");
-            let char = getChar(input[0]);
-            let grenade = grenadeList[input[1].toLowerCase().replace(/-/,"").replace(/,/,"").replace(/-/,"").replace(/ /,"")];
+            let char = getObj('character',input[0]);
+            let grenade = grenadeList[input[1].toLowerCase()];
             // Parameter checks
             if(char == undefined){
                 sendChat("character|" + getChar("Clippy").get("id"), "Bruh...whoever just tried to throw a grenade is sending me an invalid character name.");
@@ -111,6 +118,10 @@ on("chat:message", function(msg){
             
             // Calculate the hit die
             let toHitDie = randomInteger(20);
+            if(getAttrByName(char.get("id"), "attribute-strength") == undefined){
+                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Strength attribute.");
+                return;
+            }
             let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
             if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
                 toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
@@ -118,6 +129,10 @@ on("chat:message", function(msg){
             
             // Gather the damage dice and bonuses
             let effect = grenade["effect"];
+            if(getAttrByName(char.get("id"), "attribute-dexterity") == undefined){
+                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Dexterity attribute.");
+                return;
+            }
             let reflexSave = "{{Reflex Save=half; DC [[10+" + grenade["level"] + "+" + Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2) + "]]}}";
             
             let whisper = "";
@@ -128,6 +143,10 @@ on("chat:message", function(msg){
             sendChat("character|" + char.get("id"), whisper + "&{template:default} {{name=" + char.get("name") + " / " + 
                 grenade["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
                 "}}" + reflexSave + " {{Scatter=[Roll Here](!&#13;#ThrownWeapon-Scatter)}}");
+        }
+    }else if(msg.content.indexOf("!addweapon ") !== -1){
+        let rawInput = msg.content.replace("!addweapon ","");
+        if(rawInput.indexOf(" --") !== -1){
         }
     }
 });
