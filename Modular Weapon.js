@@ -3,7 +3,7 @@ let weaponList = {
     "laserrifleazimuth":{"name":"Laser Rifle, Azimuth", "damage":"1d8", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity"}, 
     "semiautopistoltactical":{"name":"Semi-Auto Pistol, Tactical", "damage":"1d6", "damageType":"P", "toHitAttribute":"dexterity"}, 
     "longsword":{"name":"Longsword", "damage":"1d8", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"}, 
-    "survivalknife":{"name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength"}, 
+    "survivalknife":{"name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Operative"}, 
     "artillerylaserazimuth":{"name":"Artillery Laser, Azimuth", "damage":"1d10", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity", "special":"Penetrating"},
     "huchketrifle":{"name":"Huchket Rifle", "damage":"1d10", "damageType":"P", "critical effect":"wound", "critical effect damage":"1t[CriticalWounds]", "toHitAttribute":"dexterity"}, 
     "membraneholdoutpistol":{"name":"Membrane Holdout Pistol", "damage":"1d6", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity"}, 
