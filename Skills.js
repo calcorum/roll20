@@ -43,14 +43,28 @@ function errorBadSkill(input, character){
         "correct! Your skill input was: '" + input + "', but that ain't a skill.")
 }
 
-function capitalizeFirst(string) 
-{
+function capitalizeFirst(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function fixSkillName(skill){
+    switch(skill){
+        case "lifescience":
+            return "Life Science";
+        case "physicalscience":
+            return "Physical Science";
+        case "sensemotive":
+            return "Sense Motive";
+        case "sleightofhand":
+            return "Sleight of Hand";
+        default:
+            return capitalizeFirst(skill);
+    }
 }
 
 function rollCheck(char, skill, bonus){
     sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + "}} {{" +
-        capitalizeFirst(skill) + " Check=[[1d20+" + bonus + "]]}}")
+        fixSkillName(skill) + " Check=[[1d20+" + bonus + "]]}}")
 }
 
 // Syntax: !skill [SKILL_NAME] [optional modifier]
@@ -61,7 +75,11 @@ on("chat:message", function(msg){
     
     if(msg.content.indexOf("!skill ") !== -1){
         let char = getChar(msg.who);
-        if(char == null) return;
+        if(char == null) {
+            sendMessage(getChar("Clippy"), null, "Who just tried to roll a skill check?" +
+                " I don't know youuuuuuu!");
+            return;
+        }
         let chatBonus = 0, attBonus = 0, skRanks = 0, skBonus = 0;
         let skillName = "";
         
