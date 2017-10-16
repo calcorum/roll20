@@ -10,6 +10,7 @@ let weaponList = {
     "club":{"name":"Club", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog, archaic"}, 
     "hammerassault":{"name":"Hammer, Assault", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"},
     "unarmedstrike":{"name":"Unarmed Strike", "damage":"1d3", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Archaic, nonlethal"}, 
+    "arcpistolstatic":{"name":"Arc Pistol, Static", "damage":"1d6", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[2]]", "toHitAttribute":"dexterity", "special":"Stun"}, 
 };
 let grenadeList = {
     "fraggrenade1":{"name":"Frag Grenade I", "level":"1", "effect":"[[1d6]] P, 15 ft."},
@@ -70,6 +71,7 @@ on("chat:message", function(msg){
         let weapon = weaponList[input[0].toLowerCase()];
         if(weapon == undefined){
             sendMessage(getChar("Clippy"), char, "That sounds like a dope gun...too bad I've never heard of it... :/ You said: " + input[0]);
+            return;
         }
         // Calculate the hit die
         let toHitDie = randomInteger(20);
