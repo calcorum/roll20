@@ -204,7 +204,7 @@ on("chat:message", function(msg){
         if(whisperToGM) messageRecipient = getChar("Clippy");
         
         sendMessage(char, messageRecipient, "&{template:default} {{name=" + char.get("name") + " / " + 
-            grenadeName + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
+            grenade["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
             "}}" + reflexSave + " {{Scatter=[Roll Here](!&#13;#ThrownWeapon-Scatter)}}")
             
     }else if(msg.content.indexOf("!addweapon ") !== -1){
