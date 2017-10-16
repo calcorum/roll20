@@ -22,131 +22,204 @@ let grenadeList = {
 
 // find character sent via API call
 function getChar(charName){
-    return findObjs({
+    let character = findObjs({
         _type: "character",
         name: charName,
     })[0];
+    if(character != undefined) return character;
+    
+    switch(charName){
+        case 'Player Account': 
+            return findObjs({_type: "character",name: "Teste McButtface",})[0];
+        case 'Rogue Physicist':
+            return findObjs({_type: "character",name: "Riemann 2",})[0];
+        case 'Logan G.':
+            return findObjs({_type: "character",name: "Delta",})[0];
+        case 'Josh F.':
+            return findObjs({_type: "character",name: "Leb",})[0];
+        case 'Ryan K.':
+            return findObjs({_type: "character",name: "Roze",})[0];
+        default:
+            return null;
+    }
 }
 
-// Syntax: !fireweapon [CHARACTER_ID] --[WEAPON]
-// Example: !fireweapon @{character_id} --laserpistolazimuth
+function sendMessage(from, to, msg){
+    let whisper = "";
+    if(to != null) whisper = "/w " + to.get("name").split(" ")[0];
+    sendChat("character|" + from.get("id"), whisper + " " + msg);
+}
+
+// Syntax: !useweapon [WEAPON] [OPTIONAL_BONUS]
+// Example: !useweapon laserpistolazimuth
+// Example: !useweapon laserpistolazimuth +2
 
 on("chat:message", function(msg){
     if(msg.type != "api") return;
     
-    if(msg.content.indexOf("!fireweapon ") !== -1){
-        let rawInput = msg.content.replace("!fireweapon ","");
-        if(rawInput.indexOf(" --") !== -1){
-            let input = rawInput.split(" --");
-            let char = getObj('character',input[0]);
-            let weapon = weaponList[input[1].toLowerCase()];
-            // Parameter checks
-            if(char == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "Jesus Christopher...whoever just tried to shoot a gun is sending me an invalid character name.");
-                return;
-            }else if(weapon == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " That sounds like a dope gun...too bad I've never heard of it... :/ You said: " + input[1]);
-                return;
-            }
-            
-            // Calculate the hit die
-            let toHitDie = randomInteger(20);
-            if(getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"]) == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its To-Hit attribute.");
-                return;
-            }
-            let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"])-10)/2));
-            if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
-                toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
-            }
-            
-            // Gather the damage dice and bonuses
-            let damageBase = weapon["damage"];
-            let damageBonus = 0;
-            if (weapon["toDamageAttribute"]){
-                damageBonus += parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toDamageAttribute"])-10)/2));
-            }
-            let whisper = "";
-            let specialString = "";
-            let criticalString = "";
-            
-            if(getAttrByName(char.get("id"), "npc") == "yes"){
-                whisper = "/w gm ";
-                damageBonus += parseInt(getAttrByName(char.get("id"), "damagebonus"));
-            }
-            
-            if(weapon["special"] != undefined){
-                specialString += "{{Special=" + weapon["special"];
-                if(weapon["specialDice"]){
-                    specialString += " [[" + weapon["specialDice"] + "]]";
+    if(msg.content.indexOf("!useweapon ") !== -1){
+        let char = getChar(msg.who);
+        if(char == null){
+            sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
+                " I don't know youuuuuuuuuu!");
+            return;
+        }
+        let rawInput = msg.content.replace("!useweapon ","");
+        if(rawInput.length <= 0) return;
+        let input = rawInput.split(" ");
+        let weapon = weaponList[input[0].toLowerCase()];
+        if(weapon == undefined){
+            sendMessage(getChar("Clippy"), char, "That sounds like a dope gun...too bad I've never heard of it... :/ You said: " + input[0]);
+        }
+        // Calculate the hit die
+        let toHitDie = randomInteger(20);
+        // Check for an attribute in the character sheet
+        if(getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"]) == undefined){
+            sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its To-Hit attribute.");
+            return;
+        }
+        // Pull the attribute bonus
+        let attributeBonus = 0;
+        if(weapon["special"] == "Operative"){
+            let dex = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2));
+            log("Modular Weapons / main / dex: " + dex);
+            let str = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
+            log("Modular Weapons / main / str: " + str);
+            if(dex > str) attributeBonus = dex;
+            else attributeBonus = str;
+        }else attributeBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"])-10)/2));
+        let toHitBonus = attributeBonus;
+        
+        // Check for bonus typed into chat
+        let chatBonus = 0;
+        if(input[1] != undefined){
+            intSubString = parseInt(input[1].slice(1));
+            if(input[1].charAt(0) == '+' ){
+                if(intSubString){
+                    chatBonus = intSubString;
                 }
-                specialString += "}}";
-            }
-            
-            if (toHitDie == 20){
-                damageBase += "+" + weapon["damage"] + "+" + damageBonus;
-                criticalString += "{{Critical!=";
-                if(weapon["critical effect"]){
-                    criticalString += weapon["critical effect"];
+            }else if(input[1].charAt(0) == '-'){
+                if(intSubString){
+                    chatBonus = -intSubString;
                 }
-                if(weapon["critical effect damage"]){
-                    criticalString += " [[" + weapon["critical effect damage"] + "]]";
-                }
-                criticalString += "}}";
+            }else{
+                sendMessage(getChar("Clippy"), char, "Yo - imma roll this check for you, " +
+                    "but I'm not including the bonus you typed. I don't recognize this: " + 
+                    input[1]);
             }
-            
-            sendChat("character|" + char.get("id"), whisper + "&{template:default} {{name=" + char.get("name") + " / " + 
-                weapon["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]}} {{Damage=[[" + 
-                damageBase + "+" + damageBonus + "]] " + weapon["damageType"] + "}} " + specialString + criticalString );
-        }else sendChat("character|" + getChar("Clippy").get("id"), "/w " + msg.who + " Oh my god, what a loser. You fucked the gun syntax up...again.")
+        }
+        toHitBonus += chatBonus;
+        
+        // Pull the Base Attack Bonus
+        if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
+            toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
+        }
+        log("ModularWeapons / main / toHitBonus: " + toHitBonus);
+        
+        // Gather the damage dice and bonuses
+        let damageBase = weapon["damage"];
+        let damageBonus = 0;
+        if (weapon["toDamageAttribute"]){
+            damageBonus += parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toDamageAttribute"])-10)/2));
+        }
+        let whisperToGM = false;
+        let specialString = "";
+        let criticalString = "";
+        
+        if(getAttrByName(char.get("id"), "npc") == "yes"){
+            whisperToGM = true;
+            damageBonus += parseInt(getAttrByName(char.get("id"), "damagebonus"));
+        }
+        
+        if(weapon["special"] != undefined){
+            specialString += "{{Special=" + weapon["special"];
+            if(weapon["specialDice"]){
+                specialString += " [[" + weapon["specialDice"] + "]]";
+            }
+            specialString += "}}";
+        }
+        
+        if (toHitDie == 20){
+            damageBase += "+" + weapon["damage"] + "+" + damageBonus;
+            criticalString += "{{Critical!=";
+            if(weapon["critical effect"]){
+                criticalString += weapon["critical effect"];
+            }
+            if(weapon["critical effect damage"]){
+                criticalString += " [[" + weapon["critical effect damage"] + "]]";
+            }
+            criticalString += "}}";
+        }
+        
+        let messageRecipient = null;
+        if(whisperToGM) messageRecipient = getChar("Clippy");
+        
+        sendMessage(char, messageRecipient, "&{template:default} {{name=" + char.get("name") + " / " + 
+            weapon["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]}} {{Damage=[[" + 
+            damageBase + "+" + damageBonus + "]] " + weapon["damageType"] + "}} " + specialString + criticalString);
         
     }else if(msg.content.indexOf("!throwgrenade ") !== -1){
-        let rawInput = msg.content.replace("!throwgrenade ","");
-        if(rawInput.indexOf(" --") !== -1){
-            let input = rawInput.split(" --");
-            let char = getObj('character',input[0]);
-            let grenade = grenadeList[input[1].toLowerCase()];
-            // Parameter checks
-            if(char == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "Bruh...whoever just tried to throw a grenade is sending me an invalid character name.");
-                return;
-            }else if(grenade == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Sorry, bro, I've got no clue what grenade you're throwing :/")
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " You said: '" + input[1] +"'. Maybe you forgot to change the roman numeral (IV) to its value (4)?");
-                return;
-            }
-            
-            // Calculate the hit die
-            let toHitDie = randomInteger(20);
-            if(getAttrByName(char.get("id"), "attribute-strength") == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Strength attribute.");
-                return;
-            }
-            let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
-            if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
-                toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
-            }
-            
-            // Gather the damage dice and bonuses
-            let effect = grenade["effect"];
-            if(getAttrByName(char.get("id"), "attribute-dexterity") == undefined){
-                sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Dexterity attribute.");
-                return;
-            }
-            let reflexSave = "{{Reflex Save=half; DC [[10+" + grenade["level"] + "+" + Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2) + "]]}}";
-            
-            let whisper = "";
-            if(getAttrByName(char.get("id"), "npc") == "yes"){
-                whisper = "/w gm ";
-            }
-            
-            sendChat("character|" + char.get("id"), whisper + "&{template:default} {{name=" + char.get("name") + " / " + 
-                grenade["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
-                "}}" + reflexSave + " {{Scatter=[Roll Here](!&#13;#ThrownWeapon-Scatter)}}");
+        let char = getChar(msg.who);
+        if(char == null){
+            sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
+                " I don't know youuuuuuuuuu!");
+            return;
         }
+        let rawInput = msg.content.replace("!throwgrenade ","");
+        if(rawInput.length <= 0) return;
+        let input = rawInput.split(" ");
+        let grenadeName = input[0];
+        let grenade = grenadeList[grenadeName.toLowerCase()];
+        if(grenade == undefined){
+            sendMessage(getChar("Clippy"), char, "Sorry, bro, I've got no clue what grenade you're throwing :/")
+            sendMessage(getChar("Clippy"), char, "You said: '" + grenadeName +"'. Maybe you forgot to change the roman numeral (IV) to its value (4)?");
+            return;
+        }
+        
+        // Calculate the hit die
+        let toHitDie = randomInteger(20);
+        if(getAttrByName(char.get("id"), "attribute-strength") == undefined){
+            sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Strength attribute.");
+            return;
+        }
+        let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
+        if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
+            toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
+        }
+        
+        // Gather the damage dice and bonuses
+        let effect = grenade["effect"];
+        if(getAttrByName(char.get("id"), "attribute-dexterity") == undefined){
+            sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Dexterity attribute.");
+            return;
+        }
+        let reflexSave = "{{Reflex Save=half; DC [[10+" + grenade["level"] + "+" + Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2) + "]]}}";
+        
+        let whisperToGM = false;
+        if(getAttrByName(char.get("id"), "npc") == "yes"){
+            whisperToGM = true;
+        }
+        
+        let messageRecipient = null;
+        if(whisperToGM) messageRecipient = getChar("Clippy");
+        
+        sendMessage(char, messageRecipient, "&{template:default} {{name=" + char.get("name") + " / " + 
+            grenadeName + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
+            "}}" + reflexSave + " {{Scatter=[Roll Here](!&#13;#ThrownWeapon-Scatter)}}")
+            
     }else if(msg.content.indexOf("!addweapon ") !== -1){
         let rawInput = msg.content.replace("!addweapon ","");
         if(rawInput.indexOf(" --") !== -1){
         }
+        
+    }else if(msg.content.indexOf("!fireweapon ") !== -1){
+        let char = getChar(msg.who);
+        if(char == null){
+            sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
+                " I don't know youuuuuuuuuu!");
+            return;
+        }
+        sendMessage(getChar("Clippy"), char, "Please update your weapon macro from '!fireweapon' to '!useweapon'. Yeah, I know it's pedantic, but " +
+            "it's for the greater good.");
     }
 });
