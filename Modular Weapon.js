@@ -207,14 +207,27 @@ on("chat:message", function(msg){
         
         sendMessage(char, messageRecipient, "&{template:default} {{name=" + char.get("name") + " / " + 
             grenade["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
-            "}}" + reflexSave + " {{Scatter=[Roll Here](!&#13;#ThrownWeapon-Scatter)}}")
+            "}}" + reflexSave + " {{Scatter=[Roll Here](!thrownscatter)}}")
             
-    }else if(msg.content.indexOf("!addweapon ") !== -1){
-        let rawInput = msg.content.replace("!addweapon ","");
-        if(rawInput.indexOf(" --") !== -1){
-        }
+    }else if(msg.content.indexOf("!thrownscatter") !== -1){
+        let char = getChar(msg.who);
+        let from = null;
+        if(char != null) from = char
         
-    }else if(msg.content.indexOf("!fireweapon ") !== -1){
+        sendMessage(from, null, "&{template:default} {{name=Thrown Weapon Scatter}} {{Scatter Roll:=[[1d8]]}} " + 
+            "{{Scatter Chart:=[Click here](http://journal.roll20.net/handout/-KthZMTSVrge17fkMsil)}} {{Distance:=[[1d4]] squares}}");
+        
+    }else if(msg.content.indexOf("!addweapon") !== -1){
+        let char = getChar(msg.who);
+        if(char == null){
+            sendMessage(getChar("Clippy"), null, "Who just tried to add a weapon?" + 
+                " I don't know youuuuuuuuuu!");
+            return;
+        }
+        sendMessage(getChar("Clippy"), char, "Select weapon for anything other than a grenade. [Weapon](!newweapon) [Grenade](!newgrenade)");
+        log("Hopefully the character got a response from Clippy :)");
+        
+    }else if(msg.content.indexOf("!fireweapon") !== -1){
         let char = getChar(msg.who);
         if(char == null){
             sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
@@ -223,5 +236,12 @@ on("chat:message", function(msg){
         }
         sendMessage(getChar("Clippy"), char, "Please update your weapon macro from '!fireweapon' to '!useweapon'. Yeah, I know it's pedantic, but " +
             "it's for the greater good.");
+    }else if(msg.content.indexOf("!newweapon") !== -1){
+        let char = getChar(msg.who);
+        if(char == null){
+            sendMessage(getChar("Clippy"), null, "Who just tried to add a weapon?" + 
+                " I don't know youuuuuuuuuu!");
+            return;
+        }
     }
 });
