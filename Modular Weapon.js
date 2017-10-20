@@ -28,7 +28,6 @@ function getChar(charName){
         name: charName,
     })[0];
     if(character != undefined) return character;
-    
     switch(charName){
         case 'Player Account': 
             return findObjs({_type: "character",name: "Teste McButtface",})[0];
@@ -59,12 +58,16 @@ on("chat:message", function(msg){
     if(msg.type != "api") return;
     
     if(msg.content.indexOf("!useweapon ") !== -1){
-        let char = getChar(msg.who);
-        if(char == null){
-            sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
-                " I don't know youuuuuuuuuu!");
-            return;
+        let char = null;
+        if(msg.who != "Cal C. (GM)"){
+            char = getChar(msg.who);
+            if(char == null){
+                sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
+                    " I don't know youuuuuuuuuu!");
+                return;
+            }
         }
+        
         let rawInput = msg.content.replace("!useweapon ","");
         if(rawInput.length <= 0) return;
         let input = rawInput.split(" ");
@@ -73,6 +76,20 @@ on("chat:message", function(msg){
             sendMessage(getChar("Clippy"), char, "That sounds like a dope gun...too bad I've never heard of it... :/ You said: " + input[0]);
             return;
         }
+        
+        // If this is an NPC (GM rolled the check), get their char now
+        if(char == null){
+            _.each(input, function(param){
+                if(param.indexOf("charname") != -1){
+                    char = getChar(param.split("=")[1]);
+                }
+            });
+        }
+        if(char == null){
+            sendMessage(getChar("Clippy"), getChar("Clippy"), "Who dafuq is trying to shoot?");
+            return;
+        }
+        
         // Calculate the hit die
         let toHitDie = randomInteger(20);
         // Check for an attribute in the character sheet
@@ -84,9 +101,7 @@ on("chat:message", function(msg){
         let attributeBonus = 0;
         if(weapon["special"] == "Operative"){
             let dex = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2));
-            log("Modular Weapons / main / dex: " + dex);
             let str = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
-            log("Modular Weapons / main / str: " + str);
             if(dex > str) attributeBonus = dex;
             else attributeBonus = str;
         }else attributeBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"])-10)/2));
@@ -94,22 +109,24 @@ on("chat:message", function(msg){
         
         // Check for bonus typed into chat
         let chatBonus = 0;
-        if(input[1] != undefined){
-            intSubString = parseInt(input[1].slice(1));
-            if(input[1].charAt(0) == '+' ){
-                if(intSubString){
-                    chatBonus = intSubString;
+        _.each(input, function(param){
+            if(param.indexOf("tohitbonus") != -1){
+                log("ModularWeapons / main / chatBonus / recognized 'tohitbonus'");
+                log("ModularWeapons / main / chatBonus / parameter: " + param);
+                let bonus = param.split("=")[1]
+                log("ModularWeapons / main / chatBonus / bonus: " + bonus);
+                let intSubString = parseInt(bonus.slice(1));
+                if(bonus.charAt(0) == '+' ){
+                    if(intSubString){
+                        chatBonus = intSubString;
+                    }
+                }else if(bonus.charAt(0) == '-'){
+                    if(intSubString){
+                        chatBonus = -intSubString;
+                    }
                 }
-            }else if(input[1].charAt(0) == '-'){
-                if(intSubString){
-                    chatBonus = -intSubString;
-                }
-            }else{
-                sendMessage(getChar("Clippy"), char, "Yo - imma roll this check for you, " +
-                    "but I'm not including the bonus you typed. I don't recognize this: " + 
-                    input[1]);
             }
-        }
+        });
         toHitBonus += chatBonus;
         
         // Pull the Base Attack Bonus
