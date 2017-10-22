@@ -61,6 +61,16 @@ on("ready", function(){
                 current: "1",
                 characterid: char.id
         });
+        createObj("attribute", {
+                name: "eac",
+                current: "10",
+                characterid: char.id
+        });
+        createObj("attribute", {
+                name: "kac",
+                current: "10",
+                characterid: char.id
+        });
         createObj("ability", {
             name: "Attack-Weapon-Sample",
             action: weaponExample,
