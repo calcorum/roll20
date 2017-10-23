@@ -4,7 +4,19 @@ let ship = {
     "gunner":0,
     "pilot":0,
     "science":0,
+    "name":"Loreseeker",
+    "tier":2,
 }
+
+let shipSkillList = {"acrobatics":"dexterity", "athletics":"strength", 
+    "bluff":"charisma", "computers":"intelligence", "culture":"intelligence", 
+    "diplomacy":"charisma", "disguise":"charisma", "engineering":"intelligence", 
+    "intimidate":"charisma", "lifescience":"intelligence", "medicine":"intelligence", 
+    "mysticism":"wisdom", "perception":"wisdom", "physicalscience":"intelligence", 
+    "piloting":"dexterity", "profession00":"unknown", "profession01":"unknown", 
+    "sensemotive":"wisdom", "sleightofhand":"dexterity", "stealth":"dexterity", 
+    "survival":"wisdom",
+};
 
 function sendMessage(from, to, msg){
     let whisper = "";
@@ -33,6 +45,29 @@ function getChar(charName){
         default:
             return null;
     }
+}
+
+function rollShipCheck(char, role, action, skill, chatBonus, dc){
+    let attBonus = 0, skRanks = 0, skBonus = 0, totalBonus = 0;
+    // Get skill bonus from attributes
+    skBonus = parseInt(getAttrByName(char.get("id"), "skill-" + skill, "max"));
+    if(isNaN(skBonus)) skBonus = 0;
+    // Get skill ranks
+    skRanks = parseInt(getAttrByName(char.get("id"), "skill-" + skill, "current"));
+    if(isNaN(skRanks)) skRanks = 0;
+    // get attribute bonus
+    attBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "attribute-" + skillList[skill])-10)/2);
+    if(isNaN(attBonus)) attBonus = 0;
+    totalBonus = skBonus + skRanks + attBonus + chatBonus;
+    
+    log("Starship / rollCheck / Character: " + char.get("name"));
+    log("Starship / rollCheck / skBonus: " + skBonus);
+    log("Starship / rollCheck / skRanks: " + skRanks);
+    log("Starship / rollCheck / attBonus: " + attBonus);
+    log("Starship / rollCheck / chatBonus: " + chatBonus);
+    
+    sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + " / " + role + 
+        "}} {{" + action + " Check=[[1d20+" + totalBonus + "]]}} {{DC=" + dc + "}}");
 }
 
 function charLevel(character){
@@ -84,7 +119,7 @@ function errorBadAction(action, role, character){
 }
 
 // Syntax: !ship [SKILL_NAME] [optional modifier]
-// Example: !ship engineer-divert +2
+// Example: !ship gunner-shoot-bab +2
 // Example: !ship science-scan
 on("chat:message", function(msg){
     if(msg.type != "api") return;
@@ -105,6 +140,7 @@ on("chat:message", function(msg){
         let input = rawInput.split(" ");
         skillName = input[0];
         // Check for bonus typed into chat
+        /*
         if(input[1] != undefined){
             intSubString = parseInt(input[1].slice(1));
             if(input[1].charAt(0) == '+' ){
@@ -118,7 +154,7 @@ on("chat:message", function(msg){
             }else{
                 errorBadBonus(input[1], char);
             }
-        }
+        }*/
         // Check for valid ship skill name and action
         let role = input[0].split("-")[0];
         let action = input[0].split("-")[1];
@@ -126,35 +162,49 @@ on("chat:message", function(msg){
         log("Starship / role: " + role);
         log("Starship / action: " + action);
         log("Starship / option: " + option);
-        if(action == undefined) return;
+        if(action == undefined){
+            sendMessage(getChar("Clippy"), char, "I didn't hear any actions in there. You said: " + input);
+            return;
+        }
         
         switch(role){
             case "captain":
                 switch(action){
                     case "movingspeech":
                         if (charLevel(char) >= 12){
-                            // do the action
+                            sendMessage(getChar("Clippy"), char, "Hey - you actually got the syntax, right! Too bad this action isn't programmed, yet.");
+                            break;
                         }else{
                             levelTooLow(char, charLevel(char), 12);
-                            return;
+                            sendMessage(getChar("Clippy"), char, "Hey - you actually got the syntax, right! Too bad this action isn't programmed, yet.");
+                            break;
                         }
                         break;
                     case "orders":
                         if (charLevel(char) >= 6){
-                            // do the action
+                            sendMessage(getChar("Clippy"), char, "Hey - you actually got the syntax, right! Too bad this action isn't programmed, yet.");
+                            break;
                         }else{
                             rankTooLow(char, charLevel(char), 6);
-                            return;
+                            break;
                         }
                         break;
                     case "taunt":
-                        // do the action
+                        if(option == undefined){
+                            sendMessage(getChar("Clippy"), char, "You're missing the skill option for this check.");
+                            break;
+                        }
+                        rollShipCheck(char, "Captain", "Taunt", option, 0, "15 + 2 * Enemy Ship Tier");
                         break;
                     case "encourage":
-                        // do the action
+                        if(option == undefined){
+                            sendMessage(getChar("Clippy"), char, "You're missing the skill option for this check.");
+                            break;
+                        }
+                        rollShipCheck(char, "Captain", "Encourage", option, 0, (option == "diplomacy") ? 15+ship["tier"] : 10);
                         break;
                     case "demand":
-                        // do the action
+                        rollShipCheck(char, "Captain", "Demand", "intimidate", 0, 15 + 2 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
@@ -168,7 +218,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "engineering"), 12);
-                            return;
+                            break;
                         }
                         break;
                     case "overpower":
@@ -176,7 +226,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "engineering"), 6);
-                            return;
+                            break;
                         }
                         break;
                     case "patch":
@@ -200,7 +250,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             levelTooLow(char, charLevel(char), 12);
-                            return;
+                            break;
                         }
                         break;
                     case "broadside":
@@ -208,7 +258,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             levelTooLow(char, charLevel(char), 6);
-                            return;
+                            break;
                         }
                         break;
                     case "shoot":
@@ -232,7 +282,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "piloting"), 12);
-                            return;
+                            break;
                         }
                         break;
                     case "fullpower":
@@ -240,7 +290,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "piloting"), 6);
-                            return;
+                            break;
                         }
                         break;
                     case "stunt":
@@ -261,7 +311,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "computers"), 12);
-                            return;
+                            break;
                         }
                         break;
                     case "lockon":
@@ -269,7 +319,7 @@ on("chat:message", function(msg){
                             // do the action
                         }else{
                             rankTooLow(char, charRank(char, "computers"), 6);
-                            return;
+                            break;
                         }
                         break;
                     case "targetsystem":
@@ -291,11 +341,5 @@ on("chat:message", function(msg){
                     "your role on this ship is? What in the world is: " + role + "?");
                 return;
         }
-        
-        log("Starship / Character: " + char.get("name"));
-        log("Starship / skBonus: " + skBonus);
-        log("Starship / skRanks: " + skRanks);
-        log("Starship / attBonus: " + attBonus);
-        log("Starship / chatBonus: " + chatBonus);
     }
 });
