@@ -18,6 +18,24 @@ let shipSkillList = {"acrobatics":"dexterity", "athletics":"strength",
     "survival":"wisdom",
 };
 
+let stuntDcs = {
+    "backoff":10 + 2 * ship["tier"],
+    "barrelroll":10 + 2 * ship["tier"],
+    "evade":10 + 2 * ship["tier"],
+    "flipandburn":15 + 2 * ship["tier"],
+    "flyby":"20 + 2 * Enemy Ship Tier",
+    "slide":10 + 2 * ship["tier"],
+};
+
+let stuntName = {
+    "backoff":"Back Off",
+    "barrelroll":"Barrel Roll",
+    "evade":"Evade",
+    "flipandburn":"Flip and Burn",
+    "flyby":"Fly By",
+    "slide":"Slide",
+};
+
 function sendMessage(from, to, msg){
     let whisper = "";
     if(to != null) whisper = "/w " + to.get("name").split(" ")[0];
@@ -230,13 +248,13 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "patch":
-                        // do the action
+                        rollShipCheck(char, "Engineer", "Patch", "engineering", 0, "[Check Here](http://journal.roll20.net/handout/-Kx6XXnQdz_gPlUFIdXF)");
                         break;
                     case "holdittogether":
-                        // do the action
+                        rollShipCheck(char, "Engineer", "Hold It Together", "engineering", 0, 15 + 2 * ship["tier"]);
                         break;
                     case "divert":
-                        // do the action
+                        rollShipCheck(char, "Engineer", "Divert", "engineering", 0, 10 + 2 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
@@ -294,10 +312,17 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "stunt":
-                        // do the action
+                        if(option == undefined){
+                            sendMessage(getChar("Clippy"), char, "You're missing the stunt option for this check.");
+                            break;
+                        }
+                        rollShipCheck(char, "Pilot", stuntName[option], "piloting", 0, stuntDcs[option]);
                         break;
                     case "maneuver":
-                        // do the action
+                        rollShipCheck(char, "Pilot", "Maneuver", "piloting", 0, 15 + 2 * ship["tier"]);
+                        break;
+                    case "fly":
+                        rollShipCheck(char, "Pilot", "Fly", "piloting", 0, "None");
                         break;
                     default:
                         errorBadAction(action, role, char);
