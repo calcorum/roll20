@@ -6,10 +6,10 @@ let skills = ["skill-acrobatics", "skill-athletics", "skill-bluff",
     "skill-profession01", "skill-sensemotive", "skill-sleightofhand",
     "skill-stealth", "skill-survival"];
 let saves = ["save-fortitude", "save-reflex", "save-will"];
-let stats = ["hitpoints", "stamina", "resolve", "initiative",
+let stats = ["hitpoints", "stamina", "resolve", "initiative", 
+     "baseattackbonus", "languages", "alignment", "size", "race",
     "profession00-name", "profession00-attribute", "profession01-name",
-    "profession00-attribute", "languages", "alignment", "size", "race",
-    "baseattackbonus"]
+    "profession01-attribute"]
 let attributes = ["attribute-strength", "attribute-dexterity", 
     "attribute-constitution", "attribute-intelligence",
     "attribute-wisdom", "attribute-charisma"];
@@ -23,10 +23,10 @@ let notes = "/w gm &{template:default} {{name=@{character_name} / Notes}}{{Align
 on("ready", function(){
     on("add:character", function(char){
         log("Character name: " + char.get("name"));
-        _.each(stats, function(st){
+        _.each(attributes, function(att){
             createObj("attribute", {
-                name: st,
-                current: 0,
+                name: att,
+                current: 10,
                 characterid: char.id
             });
         });
@@ -37,16 +37,16 @@ on("ready", function(){
                 characterid: char.id
             });
         });
-        _.each(attributes, function(att){
-            createObj("attribute", {
-                name: att,
-                current: 10,
-                characterid: char.id
-            });
-        });
         _.each(skills, function(sk){
             createObj("attribute", {
                 name: sk,
+                current: 0,
+                characterid: char.id
+            });
+        });
+        _.each(stats, function(st){
+            createObj("attribute", {
+                name: st,
                 current: 0,
                 characterid: char.id
             });
