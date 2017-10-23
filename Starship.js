@@ -6,7 +6,12 @@ let ship = {
     "science":0,
     "name":"Loreseeker",
     "tier":2,
-}
+};
+
+let shipWeapons = {
+    "lightlasercannon":{"name":"Light Laser Cannon", "damage":"2d4"},
+    "coilgun":{"name":"Coilgun", "damage":"4d4"},
+};
 
 let shipSkillList = {"acrobatics":"dexterity", "athletics":"strength", 
     "bluff":"charisma", "computers":"intelligence", "culture":"intelligence", 
@@ -86,6 +91,30 @@ function rollShipCheck(char, role, action, skill, chatBonus, dc){
     
     sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + " / " + role + 
         "}} {{" + action + " Check=[[1d20+" + totalBonus + "]]}} {{DC=" + dc + "}}");
+}
+
+function rollGunneryCheck(char, action, weapon, chatBonus){
+    let attBonus = 0, totalBonus = 0;
+    let pOrBab = 0;
+    // Set pOrBab to piloting ranks
+    pOrBab = parseInt(getAttrByName(char.get("id"), "skill-piloting", "current"));
+    // If BAB is higher than piloting ranks, update pOrBab
+    let bab = parseInt(getAttrByName(char.get("id"), "baseattackbonus", "current"));
+    if(bab > pOrBab) pOrBab = bab;
+    
+    // get attribute bonus
+    attBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "attribute-dexterity") - 10)/2);
+    if(isNaN(attBonus)) attBonus = 0;
+    totalBonus = pOrBab + attBonus + chatBonus + ship["gunner"];
+    
+    log("Starship / rollGunneryCheck / Character: " + char.get("name"));
+    log("Starship / rollGunneryCheck / pOrBab: " + pOrBab);
+    log("Starship / rollGunneryCheck / attBonus: " + attBonus);
+    log("Starship / rollGunneryCheck / chatBonus: " + chatBonus);
+    
+    sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + " / Gunner}} {{Weapon=" + 
+        shipWeapons[weapon]["name"] + "}} {{" + action + " Check=[[1d20+" + totalBonus + "]]}} {{Damage=[[" +
+        shipWeapons[weapon]["damage"] + "]]}}");
 }
 
 function charLevel(character){
@@ -280,13 +309,19 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "shoot":
-                        // do the action
+                        if(option == undefined){
+                            sendMessage(getChar("Clippy"), char, "You're missing the weapon for this check.");
+                            break;
+                        }
+                        rollGunneryCheck(char, "Shoot", option, 0);
                         break;
                     case "fireatwill":
-                        // do the action
-                        break;
-                    case "demand":
-                        // do the action
+                        if(option == undefined){
+                            sendMessage(getChar("Clippy"), char, "You're missing the weapon for this check.");
+                            break;
+                        }
+                        rollGunneryCheck(char, "Fire at Will", option, -4);
+                        rollGunneryCheck(char, "Fire at Will", option, -4);
                         break;
                     default:
                         errorBadAction(action, role, char);
@@ -348,13 +383,13 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "targetsystem":
-                        // do the action
+                        rollShipCheck(char, "Science Officer", "Target System", "computers", 0, "15 + Enemy Ship Tier + Enemy Countermeasures");
                         break;
                     case "scan":
-                        // do the action
+                        rollShipCheck(char, "Science Officer", "Scan", "computers", 0, "10 + Enemy Ship Tier + Enemy Countermeasures");
                         break;
                     case "balance":
-                        // do the action
+                        rollShipCheck(char, "Science Officer", "Balance", "computers", 0, 15 + 2 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
