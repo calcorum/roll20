@@ -54,7 +54,7 @@ function getChar(charName){
 function weaponChoices(){
     let weaponString = "";
     _.each(weaponList, function(weapon){
-        weaponString += "[" + weapon["name"] + "](!newweapon " + weapon["id"] + ") ";
+        weaponString += "<p>[" + weapon["name"] + "](!newweapon " + weapon["id"] + ")</p>";
     });
     return weaponString;
 }
@@ -62,7 +62,7 @@ function weaponChoices(){
 function grenadeChoices(){
     let grenadeString = "";
     _.each(grenadeList, function(grenade){
-        grenadeString += "[" + grenade["name"] + "](!newweapon " + grenade["id"] + ") ";
+        grenadeString += "<p>[" + grenade["name"] + "](!newweapon " + grenade["id"] + ")</p>";
     });
     return grenadeString;
 }
