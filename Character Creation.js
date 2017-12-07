@@ -71,6 +71,16 @@ on("ready", function(){
                 current: "10",
                 characterid: char.id
         });
+        createObj("attribute", {
+                name: "characterlevel",
+                current: "1",
+                characterid: char.id
+        });
+        createObj("attribute", {
+                name: "weapon-specializtions",
+                current: "basic-melee,small-arms",
+                characterid: char.id
+        });
         createObj("ability", {
             name: "Attack-Weapon-Sample",
             action: weaponExample,
