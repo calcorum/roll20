@@ -1,16 +1,19 @@
 let weaponList = {
-    "arcpistolstatic":{"id":"arcpistolstatic","name":"Arc Pistol, Static", "damage":"1d6", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[2]]", "toHitAttribute":"dexterity", "special":"Stun","ammo":"charge","capacity":20,"usage":2}, 
-    "artillerylaserazimuth":{"id":"artillerylaserazimuth","name":"Artillery Laser, Azimuth", "damage":"1d10", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity", "special":"Penetrating","ammo":"charge","capacity":20,"usage":2},
-    "club":{"id":"club","name":"Club", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog, archaic"}, 
-    "hammerassault":{"id":"hammerassault","name":"Hammer, Assault", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"},
-    "huchketrifle":{"id":"huchketrifle","name":"Huchket Rifle", "damage":"1d10", "damageType":"P", "critical effect":"wound", "critical effect damage":"1t[CriticalWounds]", "toHitAttribute":"dexterity","ammo":"round","capacity":6,"usage":1}, 
-    "laserpistolazimuth":{"id":"laserpistolazimuth","name":"Laser Pistol, Azimuth", "damage":"1d4", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d4", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":1}, 
-    "laserrifleazimuth":{"id":"laserrifleazimuth","name":"Laser Rifle, Azimuth", "damage":"1d8", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":2}, 
-    "longsword":{"id":"longsword","name":"Longsword", "damage":"1d8", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog"}, 
-    "semiautopistoltactical":{"id":"semiautopistoltactical","name":"Semi-Auto Pistol, Tactical", "damage":"1d6", "damageType":"P", "toHitAttribute":"dexterity","ammo":"round","capacity":9,"usage":1}, 
-    "shockrevolverlvl4":{"id":"shockrevolverlvl4","name":"Shock Revolver, Level 4", "damage":"1d8", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[1d4]]", "toHitAttribute":"dexterity","ammo":"charge","capacity":8,"usage":1}, 
-    "survivalknife":{"id":"survivalknife","name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Operative"}, 
-    "unarmedstrike":{"id":"unarmedstrike","name":"Unarmed Strike", "damage":"1d3", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Archaic, nonlethal"}, 
+    "arcpistollvl4":{"id":"arcpistollvl4","name":"Arc Pistol, Level 4", "damage":"1d8", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[1d4]]", "toHitAttribute":"dexterity","ammo":"charge","capacity":20,"usage":2, "special":"Stun", "type":"small-arms"},
+    "arcpistolstatic":{"id":"arcpistolstatic","name":"Arc Pistol, Static", "damage":"1d6", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[2]]", "toHitAttribute":"dexterity", "special":"Stun","ammo":"charge","capacity":20,"usage":2, "type":"small-arms"}, 
+    "artillerylaserazimuth":{"id":"artillerylaserazimuth","name":"Artillery Laser, Azimuth", "damage":"1d10", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity", "special":"Penetrating","ammo":"charge","capacity":20,"usage":2, "type":"heavy"},
+    "club":{"id":"club","name":"Club", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog, archaic", "type":"basic-melee"}, 
+    "dogslicer":{"id":"dogslicer","name":"Dogslicer", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"basic-melee"}, 
+    "hammerassault":{"id":"hammerassault","name":"Hammer, Assault", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"advanced-melee"},
+    "huchketrifle":{"id":"huchketrifle","name":"Huchket Rifle", "damage":"1d10", "damageType":"P", "critical effect":"wound", "critical effect damage":"1t[CriticalWounds]", "toHitAttribute":"dexterity","ammo":"round","capacity":6,"usage":1, "type":"longarms"}, 
+    "junklaser":{"id":"junklaser","name":"Junk Laser", "damage":"1d4", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d4", "toHitAttribute":"dexterity","ammo":"charge","capacity":10,"usage":1, "type":"small-arms"}, 
+    "laserpistolazimuth":{"id":"laserpistolazimuth","name":"Laser Pistol, Azimuth", "damage":"1d4", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d4", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":1, "type":"small-arms"}, 
+    "laserrifleazimuth":{"id":"laserrifleazimuth","name":"Laser Rifle, Azimuth", "damage":"1d8", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":2, "type":"longarms"}, 
+    "longsword":{"id":"longsword","name":"Longsword", "damage":"1d8", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"advanced-melee"}, 
+    "semiautopistoltactical":{"id":"semiautopistoltactical","name":"Semi-Auto Pistol, Tactical", "damage":"1d6", "damageType":"P", "toHitAttribute":"dexterity","ammo":"round","capacity":9,"usage":1, "type":"small-arms"}, 
+    "shirreneyerifletactical":{"id":"shirreneyerifletactical","name":"Shirren-Eye Rifle, Tactical", "damage":"1d10", "damageType":"P", "toHitAttribute":"dexterity","ammo":"round","capacity":1,"usage":1, "type":"sniper"}, 
+    "survivalknife":{"id":"survivalknife","name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Operative", "type":"basic-melee"}, 
+    "unarmedstrike":{"id":"unarmedstrike","name":"Unarmed Strike", "damage":"1d3", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Archaic, nonlethal", "type":"basic-melee"}, 
 };
 let grenadeList = {
     "cryogrenade1":{"id":"cryogrenade1","name":"Cryo Grenade I", "level":"6", "effect":"[[1d8]] C, staggered [[1]] round, 10 ft."},
@@ -41,7 +44,7 @@ function getChar(charName){
         case 'Rogue Physicist':
             return findObjs({_type: "character",name: "Riemann 2",})[0];
         case 'Logan G.':
-            return findObjs({_type: "character",name: "Delta",})[0];
+            return findObjs({_type: "character",name: "Delta 1",})[0];
         case 'Josh F.':
             return findObjs({_type: "character",name: "Leb",})[0];
         case 'Ryan K.':
@@ -85,8 +88,7 @@ on("chat:message", function(msg){
         if(msg.who != "Cal C. (GM)"){
             char = getChar(msg.who);
             if(char == null){
-                sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
-                    " I don't know youuuuuuuuuu!");
+                sendMessage(getChar("Clippy"), null, "This GM is a dumbass. Roll as a character not yourself!");
                 return;
             }
         }
@@ -178,10 +180,36 @@ on("chat:message", function(msg){
         if (weapon["toDamageAttribute"]){
             damageBonus += parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toDamageAttribute"])-10)/2));
         }
+        
+        // Check for weapon specialization
+        // Get comma-separated list of specializations from char attribute "weapon-specializations"
+        let specCsv = getAttrByName(char.get("id"), "weapon-specializations");
+        // Split the list into an array
+        let weaponSpecs = specCsv.split(",");
+        let specBonus = 0;
+        // Check each specialization against weapon's type - if match and not small-arms or operative (not a type!), half level damage, else full level damage
+        _.each(weaponSpecs, function(specialization){
+            log("Modular Weapons / !useweapon / specialization: " + specialization);
+            if (weapon["type"] == specialization){
+                if (weapon["type"] == "small-arms"){
+                    specBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "characterlevel") / 2));
+                }else{
+                    specBonus = parseInt(getAttrByName(char.get("id"), "characterlevel"));
+                }
+                log("Modular Weapons / !useweapon / specBonus: " + specBonus);
+                _.each(weapon["special"], function(special){
+                   if (special == "Operative"){
+                       specBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "characterlevel") / 2));
+                       log("Modular Weapons / !useweapon / operative specBonus: " + specBonus);
+                   }
+                });
+            }
+        });
+        damageBonus += specBonus;
+        
         let whisperToGM = false;
         let specialString = "";
         let criticalString = "";
-        
         if(getAttrByName(char.get("id"), "npc") == "yes"){
             whisperToGM = true;
             damageBonus += parseInt(getAttrByName(char.get("id"), "damagebonus"));
@@ -196,7 +224,7 @@ on("chat:message", function(msg){
         }
         
         if(char.get("name") == "Delta 1"){
-            specialString += "{{Trick Attack=[Click Here](!trickattack 1d4)}}";
+            specialString += "{{Trick Attack=[Click Here](!trickattack 1d8)}}";
         }
         
         if (toHitDie == 20){
