@@ -1,3 +1,5 @@
+const AUTOCRIT = false;
+
 let weaponList = {
     "arcpistollvl4":{"id":"arcpistollvl4","name":"Arc Pistol, Level 4", "damage":"1d8", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[1d4]]", "toHitAttribute":"dexterity","ammo":"charge","capacity":20,"usage":2, "special":"Stun", "type":"small-arms"},
     "arcpistolstatic":{"id":"arcpistolstatic","name":"Arc Pistol, Static", "damage":"1d6", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[2]]", "toHitAttribute":"dexterity", "special":"Stun","ammo":"charge","capacity":20,"usage":2, "type":"small-arms"}, 
@@ -31,29 +33,6 @@ let grenadeList = {
     "stickybombgrenade2":{"id":"stickybombgrenade2","name":"Stickybomb Grenade II", "level":"4", "effect":"entangled [[2d4]] rounds, 15 ft."},
 };
 
-// find character sent via API call
-function getChar(charName){
-    let character = findObjs({
-        _type: "character",
-        name: charName,
-    })[0];
-    if(character != undefined) return character;
-    switch(charName){
-        case 'Player Account': 
-            return findObjs({_type: "character",name: "Teste McButtface",})[0];
-        case 'Rogue Physicist':
-            return findObjs({_type: "character",name: "Riemann 2",})[0];
-        case 'Logan G.':
-            return findObjs({_type: "character",name: "Delta 1",})[0];
-        case 'Josh F.':
-            return findObjs({_type: "character",name: "Leb",})[0];
-        case 'Ryan K.':
-            return findObjs({_type: "character",name: "Roze",})[0];
-        default:
-            return null;
-    }
-}
-
 function weaponChoices(){
     let weaponString = "";
     _.each(weaponList, function(weapon){
@@ -70,12 +49,6 @@ function grenadeChoices(){
     return grenadeString;
 }
 
-function sendMessage(from, to, msg){
-    let whisper = "";
-    if(to != null) whisper = "/w " + to.get("name").split(" ")[0];
-    sendChat("character|" + from.get("id"), whisper + " " + msg);
-}
-
 // Syntax: !useweapon [WEAPON] [OPTIONAL_BONUS]
 // Example: !useweapon laserpistolazimuth
 // Example: !useweapon laserpistolazimuth +2
@@ -87,18 +60,18 @@ on("chat:message", function(msg){
         let char = null;
         if(msg.who != "Cal C. (GM)"){
             char = getChar(msg.who);
-            if(char == null){
-                sendMessage(getChar("Clippy"), null, "This GM is a dumbass. Roll as a character - not yourself!");
+            log("Modular Weapons / !useweapon / character: " + char.get("name"));
+            if(!char){
+                sendMessage(getChar("Clippy"), null, "Yikes...Somebody is trying to shoot. Who was that?");
                 return;
             }
         }
-        log("Modular Weapons / !useweapon / character: " + char.get("name"));
         
         let rawInput = msg.content.replace("!useweapon ","");
         if(rawInput.length <= 0) return;
         let input = rawInput.split(" ");
         let weapon = weaponList[input[0].toLowerCase()];
-        if(weapon == undefined){
+        if(!weapon){
             sendMessage(getChar("Clippy"), char, "That sounds like a dope gun...too bad I've never heard of it... :/ You said: " + input[0]);
             return;
         }
@@ -150,40 +123,44 @@ on("chat:message", function(msg){
                 }
             }
         });
-        if(char == null){
+        if(!char){
             sendMessage(getChar("Clippy"), getChar("Clippy"), "Who dafuq is trying to shoot?");
             return;
         }
         
-        // Roll the hit die
-        let toHitDie = randomInteger(20);
-        // Check for an attribute in the character sheet
-        if(getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"]) == undefined){
-            sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its To-Hit attribute.");
-            return;
+        let toHitDie = 0;
+        if(AUTOCRIT) toHitDie = 20;
+        else{
+            // Roll the hit die
+            toHitDie = randomInteger(20);
+            // Check for an attribute in the character sheet
+            if(!getAttribute(char, "attribute-" + weapon["toHitAttribute"])){
+                sendMessage(getChar("Clippy"), char, "Bruh. This character is missing its To-Hit attribute.");
+                return;
+            }
         }
+        
         // Pull the attribute bonus
         let attributeBonus = 0;
         if(weapon["special"] == "Operative"){
             log("Modular Weapons / !useweapon / weapon type: Operative");
-            let dex = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2));
-            let str = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2));
+            let dex = Math.floor((getAttribute(char, "attribute-dexterity")-10)/2);
+            let str = Math.floor((getAttribute(char, "attribute-strength")-10)/2);
             log("Modular Weapons / !useweapon / operative / dex: " + dex);
             log("Modular Weapons / !useweapon / operative / str: " + str);
             if(dex > str) attributeBonus = dex;
             else attributeBonus = str;
-        }else attributeBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toHitAttribute"])-10)/2));
+        }else attributeBonus = Math.floor((getAttribute(char, "attribute-" + weapon["toHitAttribute"])-10)/2);
         let toHitBonus = attributeBonus + chatToHitBonus;
         log("Modular Weapons / !useweapon / attribute to hit bonus: " + attributeBonus);
         
         // Check for weapon focus
         // Get comma-separated list of specializations from char attribute "weapon-specializations"
         let focusBonus = 0;
-        if (getAttrByName(char.get("id"), "weapon-focus") != undefined){
-            let focusCsv = getAttrByName(char.get("id"), "weapon-focus");
-            let weaponFocuses = focusCsv.split(",");
+        if (getAttribute(char, "weapon-focus")){
+            let focusCsv = getAttribute(char, "weapon-focus");
+            let weaponFocuses = focusCsv.replace(" ","").split(",");
             _.each(weaponFocuses, function(focus){
-                log("Modular Weapons / !useweapon / focus: " + focus);
                 if (weapon["type"] == focus){
                     focusBonus = 1;
                     log("Modular Weapons / !useweapon / focusBonus: " + focusBonus);
@@ -193,8 +170,8 @@ on("chat:message", function(msg){
         toHitBonus += focusBonus;
         
         // Pull the Base Attack Bonus
-        if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
-            let bab = parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
+        if (getAttribute(char, "baseattackbonus")){
+            let bab = getAttribute(char, "baseattackbonus");
             log("Modular Weapons / !useweapon / bab: " + bab)
             toHitBonus += bab;
         }
@@ -204,7 +181,7 @@ on("chat:message", function(msg){
         let damageBase = weapon["damage"];
         let damageBonus = 0 + chatDamageBonus;
         if (weapon["toDamageAttribute"]){
-            let attributeDamageBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-" + weapon["toDamageAttribute"])-10)/2));
+            let attributeDamageBonus = Math.floor((getAttribute(char, "attribute-" + weapon["toDamageAttribute"])-10)/2);
             log("Modular Weapons / !useweapon / attributeDamageBonus: " + attributeDamageBonus);
             damageBonus += attributeDamageBonus;
         }
@@ -212,11 +189,11 @@ on("chat:message", function(msg){
         // Check for weapon specialization
         // Get comma-separated list of specializations from char attribute "weapon-specializations"
         let specBonus = 0;
-        let charLevel = parseInt(getAttrByName(char.get("id"), "characterlevel"));
+        let charLevel = getAttribute(char, "characterlevel");
         log("Modular Weapons / !useweapon / character level: " + charLevel);
         if(charLevel > 2){
-            if (getAttrByName(char.get("id"), "weapon-specializations") != undefined){
-                let specCsv = getAttrByName(char.get("id"), "weapon-specializations");
+            if (getAttribute(char, "weapon-specializations")){
+                let specCsv = getAttribute(char, "weapon-specializations");
                 let weaponSpecs = specCsv.split(",");
                 _.each(weaponSpecs, function(specialization){
                     if (weapon["type"] == specialization){
@@ -224,7 +201,7 @@ on("chat:message", function(msg){
                         if (weapon["type"] == "small-arms"){
                             specBonus = Math.floor(charLevel / 2);
                         }else{
-                            specBonus = parseInt(getAttrByName(char.get("id"), "characterlevel"));
+                            specBonus = getAttribute(char, "characterlevel");
                         }
                         _.each(weapon["special"], function(special){
                            if (special == "Operative"){
@@ -242,9 +219,9 @@ on("chat:message", function(msg){
         let whisperToGM = false;
         let specialString = "";
         let criticalString = "";
-        if(getAttrByName(char.get("id"), "npc") == "yes"){
+        if(getAttribute(char, "npc") === "yes"){
             whisperToGM = true;
-            let npcDamageBonus = parseInt(getAttrByName(char.get("id"), "damagebonus"));
+            let npcDamageBonus = getAttribute(char.get("id"), "damagebonus");
             log("Modular Weapons / !useweapon / npc damage bonus: " + npcDamageBonus);
             damageBonus += npcDamageBonus;
         }
@@ -377,7 +354,7 @@ on("chat:message", function(msg){
         
     }else if(msg.content.indexOf("!fireweapon") !== -1){
         let char = getChar(msg.who);
-        if(char == null){
+        if(!char){
             sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
                 " I don't know youuuuuuuuuu!");
             return;
@@ -386,7 +363,7 @@ on("chat:message", function(msg){
             "it's for the greater good.");
     }else if(msg.content.indexOf("!addweapon") !== -1){
         let char = getChar(msg.who);
-        if(char == null){
+        if(!char){
             sendMessage(getChar("Clippy"), null, "Who just tried to add a weapon?" + 
                 " I don't know youuuuuuuuuu!");
             return;
@@ -436,7 +413,7 @@ on("chat:message", function(msg){
         
         if(isWeapon){
             let weapon = weaponList[newWeaponName.toLowerCase()];
-            let macroString = "!useweapon " + weapon["id"];
+            let macroString = "!useweapon " + weapon["id"] + " charname=@{character_name}";
             if(weapon["ammo"]){
                 createObj("attribute", {
                     name: "ammo-" + weapon["id"],
