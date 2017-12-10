@@ -1,37 +1,6 @@
 const AUTOCRIT = false;
-
-let weaponList = {
-    "arcpistollvl4":{"id":"arcpistollvl4","name":"Arc Pistol, Level 4", "damage":"1d8", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[1d4]]", "toHitAttribute":"dexterity","ammo":"charge","capacity":20,"usage":2, "special":"Stun", "type":"small-arms"},
-    "arcpistolstatic":{"id":"arcpistolstatic","name":"Arc Pistol, Static", "damage":"1d6", "damageType":"E", "critical effect":"Arc", "critical effect damage":"[[2]]", "toHitAttribute":"dexterity", "special":"Stun","ammo":"charge","capacity":20,"usage":2, "type":"small-arms"}, 
-    "artillerylaserazimuth":{"id":"artillerylaserazimuth","name":"Artillery Laser, Azimuth", "damage":"1d10", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity", "special":"Penetrating","ammo":"charge","capacity":20,"usage":2, "type":"heavy"},
-    "club":{"id":"club","name":"Club", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog, archaic", "type":"basic-melee"}, 
-    "dogslicer":{"id":"dogslicer","name":"Dogslicer", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"basic-melee"}, 
-    "hammerassault":{"id":"hammerassault","name":"Hammer, Assault", "damage":"1d6", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"advanced-melee"},
-    "huchketrifle":{"id":"huchketrifle","name":"Huchket Rifle", "damage":"1d10", "damageType":"P", "critical effect":"wound", "critical effect damage":"1t[CriticalWounds]", "toHitAttribute":"dexterity","ammo":"round","capacity":6,"usage":1, "type":"longarms"}, 
-    "junklaser":{"id":"junklaser","name":"Junk Laser", "damage":"1d4", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d4", "toHitAttribute":"dexterity","ammo":"charge","capacity":10,"usage":1, "type":"small-arms"}, 
-    "laserpistolazimuth":{"id":"laserpistolazimuth","name":"Laser Pistol, Azimuth", "damage":"1d4", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d4", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":1, "type":"small-arms"}, 
-    "laserrifleazimuth":{"id":"laserrifleazimuth","name":"Laser Rifle, Azimuth", "damage":"1d8", "damageType":"F", "critical effect":"burn", "critical effect damage":"1d6", "toHitAttribute":"dexterity","ammo":"charge","capacity":40,"usage":2, "type":"longarms"}, 
-    "longsword":{"id":"longsword","name":"Longsword", "damage":"1d8", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Analog", "type":"advanced-melee"}, 
-    "semiautopistoltactical":{"id":"semiautopistoltactical","name":"Semi-Auto Pistol, Tactical", "damage":"1d6", "damageType":"P", "toHitAttribute":"dexterity","ammo":"round","capacity":9,"usage":1, "type":"small-arms"}, 
-    "shirreneyerifletactical":{"id":"shirreneyerifletactical","name":"Shirren-Eye Rifle, Tactical", "damage":"1d10", "damageType":"P", "toHitAttribute":"dexterity","ammo":"round","capacity":1,"usage":1, "type":"sniper"}, 
-    "survivalknife":{"id":"survivalknife","name":"Survival Knife", "damage":"1d4", "damageType":"S", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Operative", "type":"basic-melee"}, 
-    "unarmedstrike":{"id":"unarmedstrike","name":"Unarmed Strike", "damage":"1d3", "damageType":"B", "toHitAttribute":"strength", "toDamageAttribute":"strength", "special":"Archaic, nonlethal", "type":"basic-melee"}, 
-};
-let grenadeList = {
-    "cryogrenade1":{"id":"cryogrenade1","name":"Cryo Grenade I", "level":"6", "effect":"[[1d8]] C, staggered [[1]] round, 10 ft."},
-    "flashgrenade1":{"id":"flashgrenade1","name":"Flash Grenade I", "level":"2", "effect":"blinded [[1d4]] rounds, 5 ft."},
-    "flashgrenade2":{"id":"flashgrenade2","name":"Flash Grenade II", "level":"6", "effect":"blinded [[1d4]] rounds, 10 ft."},
-    "fraggrenade1":{"id":"fraggrenade1","name":"Frag Grenade I", "level":"1", "effect":"[[1d6]] P, 15 ft."},
-    "fraggrenade2":{"id":"fraggrenade2","name":"Frag Grenade II", "level":"4", "effect":"[[2d6]] P, 15 ft."},
-    "incendiarygrenade1":{"id":"incendiarygrenade1","name":"Incendiary Grenade I", "level":"2", "effect":"[[1d6]] F, [[1d4]] burn, 5 ft."},
-    "incendiarygrenade2":{"id":"incendiarygrenade2","name":"Incendiary Grenade II", "level":"6", "effect":"[[2d6]] F, [[1d6]] burn, 10 ft."},
-    "screamergrenade1":{"id":"screamergrenade1","name":"Screamer Grenade I", "level":"4", "effect":"[[1d10]] So, deafened [[1d4]] minutes, 15 ft."},
-    "shockgrenade1":{"id":"shockgrenade1","name":"Shock Grenade I", "level":"1", "effect":"[[1d8]] E, 15 ft."},
-    "shockgrenade2":{"id":"shockgrenade2","name":"Shock Grenade II", "level":"4", "effect":"[[1d12]] E, 15 ft."},
-    "smokegrenade":{"id":"smokegrenade","name":"Smoke Grenade", "level":"1", "effect":"smoke cloud 1 min., 20 ft."},
-    "stickybombgrenade1":{"id":"stickybombgrenade1","name":"Stickybomb Grenade I", "level":"1", "effect":"entangled [[2d4]] rounds, 10 ft."},
-    "stickybombgrenade2":{"id":"stickybombgrenade2","name":"Stickybomb Grenade II", "level":"4", "effect":"entangled [[2d4]] rounds, 15 ft."},
-};
+const WEAPONLOG = true;
+const GRENADELOG = true;
 
 function weaponChoices(){
     let weaponString = "";
@@ -60,7 +29,7 @@ on("chat:message", function(msg){
         let char = null;
         if(msg.who != "Cal C. (GM)"){
             char = getChar(msg.who);
-            log("Modular Weapons / !useweapon / character: " + char.get("name"));
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / character: " + char.get("name"));
             if(!char){
                 sendMessage(getChar("Clippy"), null, "Yikes...Somebody is trying to shoot. Who was that?");
                 return;
@@ -83,11 +52,12 @@ on("chat:message", function(msg){
         _.each(input, function(param){
             if(param.indexOf("charname") != -1){
                 char = getChar(param.split("=")[1]);
+                if(WEAPONLOG) log("Modular Weapons / !useweapon / character: " + char.get("name"));
             }else if(param.indexOf("tohitbonus") != -1){
-                log("ModularWeapons / !useweapon / chatBonus / recognized 'tohitbonus'");
-                log("ModularWeapons / !useweapon / chatBonus / parameter: " + param);
+                if(WEAPONLOG) log("ModularWeapons / !useweapon / chatBonus / recognized 'tohitbonus'");
+                if(WEAPONLOG) log("ModularWeapons / !useweapon / chatBonus / parameter: " + param);
                 let bonus = param.split("=")[1]
-                log("ModularWeapons / !useweapon / chatBonus / bonus: " + bonus);
+                if(WEAPONLOG) log("ModularWeapons / !useweapon / chatBonus / bonus: " + bonus);
                 let intSubString = parseInt(bonus.slice(1));
                 if(bonus.charAt(0) == '+' ){
                     if(intSubString){
@@ -103,10 +73,10 @@ on("chat:message", function(msg){
                         "start with + or - and be followed by an integer.")
                 }
             }else if(param.indexOf("damagebonus") != -1){
-                log("ModularWeapons / !useweapon / damagebonus / recognized 'damagebonus'");
-                log("ModularWeapons / !useweapon / damagebonus / parameter: " + param);
+                if(WEAPONLOG) log("Modular Weapons / !useweapon / damagebonus / recognized 'damagebonus'");
+                if(WEAPONLOG) log("Modular Weapons / !useweapon / damagebonus / parameter: " + param);
                 let bonus = param.split("=")[1]
-                log("ModularWeapons / !useweapon / damagebonus / bonus: " + bonus);
+                if(WEAPONLOG) log("Modular Weapons / !useweapon / damagebonus / bonus: " + bonus);
                 let intSubString = parseInt(bonus.slice(1));
                 if(bonus.charAt(0) == '+' ){
                     if(intSubString){
@@ -143,16 +113,16 @@ on("chat:message", function(msg){
         // Pull the attribute bonus
         let attributeBonus = 0;
         if(weapon["special"] == "Operative"){
-            log("Modular Weapons / !useweapon / weapon type: Operative");
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / weapon type: Operative");
             let dex = Math.floor((getAttribute(char, "attribute-dexterity")-10)/2);
             let str = Math.floor((getAttribute(char, "attribute-strength")-10)/2);
-            log("Modular Weapons / !useweapon / operative / dex: " + dex);
-            log("Modular Weapons / !useweapon / operative / str: " + str);
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / operative / dex: " + dex);
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / operative / str: " + str);
             if(dex > str) attributeBonus = dex;
             else attributeBonus = str;
         }else attributeBonus = Math.floor((getAttribute(char, "attribute-" + weapon["toHitAttribute"])-10)/2);
         let toHitBonus = attributeBonus + chatToHitBonus;
-        log("Modular Weapons / !useweapon / attribute to hit bonus: " + attributeBonus);
+        if(WEAPONLOG) log("Modular Weapons / !useweapon / attribute to hit bonus: " + attributeBonus);
         
         // Check for weapon focus
         // Get comma-separated list of specializations from char attribute "weapon-specializations"
@@ -163,7 +133,7 @@ on("chat:message", function(msg){
             _.each(weaponFocuses, function(focus){
                 if (weapon["type"] == focus){
                     focusBonus = 1;
-                    log("Modular Weapons / !useweapon / focusBonus: " + focusBonus);
+                    if(WEAPONLOG) log("Modular Weapons / !useweapon / focusBonus: " + focusBonus);
                 }
             });
         }
@@ -172,17 +142,17 @@ on("chat:message", function(msg){
         // Pull the Base Attack Bonus
         if (getAttribute(char, "baseattackbonus")){
             let bab = getAttribute(char, "baseattackbonus");
-            log("Modular Weapons / !useweapon / bab: " + bab)
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / bab: " + bab)
             toHitBonus += bab;
         }
-        log("Modular Weapons / !useweapon / toHitBonus: " + toHitBonus);
+        if(WEAPONLOG) log("Modular Weapons / !useweapon / toHitBonus: " + toHitBonus);
         
         // Gather the damage dice and bonuses
         let damageBase = weapon["damage"];
         let damageBonus = 0 + chatDamageBonus;
         if (weapon["toDamageAttribute"]){
             let attributeDamageBonus = Math.floor((getAttribute(char, "attribute-" + weapon["toDamageAttribute"])-10)/2);
-            log("Modular Weapons / !useweapon / attributeDamageBonus: " + attributeDamageBonus);
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / attributeDamageBonus: " + attributeDamageBonus);
             damageBonus += attributeDamageBonus;
         }
         
@@ -190,14 +160,14 @@ on("chat:message", function(msg){
         // Get comma-separated list of specializations from char attribute "weapon-specializations"
         let specBonus = 0;
         let charLevel = getAttribute(char, "characterlevel");
-        log("Modular Weapons / !useweapon / character level: " + charLevel);
+        if(WEAPONLOG) log("Modular Weapons / !useweapon / character level: " + charLevel);
         if(charLevel > 2){
             if (getAttribute(char, "weapon-specializations")){
                 let specCsv = getAttribute(char, "weapon-specializations");
                 let weaponSpecs = specCsv.split(",");
                 _.each(weaponSpecs, function(specialization){
                     if (weapon["type"] == specialization){
-                        log("Modular Weapons / !useweapon / specialization: " + specialization);
+                        if(WEAPONLOG) log("Modular Weapons / !useweapon / specialization: " + specialization);
                         if (weapon["type"] == "small-arms"){
                             specBonus = Math.floor(charLevel / 2);
                         }else{
@@ -206,7 +176,7 @@ on("chat:message", function(msg){
                         _.each(weapon["special"], function(special){
                            if (special == "Operative"){
                                specBonus = Math.floor(charLevel / 2);
-                               log("Modular Weapons / !useweapon / operative specBonus: " + specBonus);
+                               if(WEAPONLOG) log("Modular Weapons / !useweapon / operative specBonus: " + specBonus);
                            }
                         });
                     }
@@ -221,11 +191,11 @@ on("chat:message", function(msg){
         let criticalString = "";
         if(getAttribute(char, "npc") === "yes"){
             whisperToGM = true;
-            let npcDamageBonus = getAttribute(char.get("id"), "damagebonus");
-            log("Modular Weapons / !useweapon / npc damage bonus: " + npcDamageBonus);
+            let npcDamageBonus = getAttribute(char, "damagebonus");
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / npc damage bonus: " + npcDamageBonus);
             damageBonus += npcDamageBonus;
         }
-        log("Modular Weapons / !useweapon / damageBonus: " + damageBonus);
+        if(WEAPONLOG) log("Modular Weapons / !useweapon / damageBonus: " + damageBonus);
         
         if(weapon["special"] != undefined){
             specialString += "{{Special=" + weapon["special"];
@@ -235,13 +205,14 @@ on("chat:message", function(msg){
             specialString += "}}";
         }
         
-        // TODO: This need to be smarter; make the die an attribute, check for it, and add this if appropriate
-        if(char.get("name") == "Delta 1"){
-            specialString += "{{Trick Attack=[Click Here](!trickattack 1d8)}}";
+        // Check if char has trickattack-dice and, if so, add a button to roll it
+        if(getAttribute(char, "trickattack-dice")){
+            trickDice = getAttribute(char, "trickattack-dice");
+            specialString += "{{Trick Attack=[Click Here](!trickattack " + trickDice + ")}}";
         }
         
         if (toHitDie == 20){
-            log("Modular Weapons / !useweapon / critical hit")
+            if(WEAPONLOG) log("Modular Weapons / !useweapon / critical hit")
             damageBase += "+" + weapon["damage"] + "+" + damageBonus;
             criticalString += "{{Critical!=";
             if(weapon["critical effect"]){
@@ -275,23 +246,24 @@ on("chat:message", function(msg){
         
         // Check for all parameters sent
         // valid parameters are: 'charname' and 'tohitbonus'
-        let chatBonus = 0;
+        let chatBonus = 0, toHitBonus = 0;
         _.each(input, function(param){
             if(param.indexOf("charname") != -1){
                 char = getChar(param.split("=")[1]);
             }else if(param.indexOf("tohitbonus") != -1){
-                log("ModularWeapons / main / chatBonus / recognized 'tohitbonus'");
-                log("ModularWeapons / main / chatBonus / parameter: " + param);
+                if(GRENADELOG) log("ModularWeapons / main / chatBonus / recognized 'tohitbonus'");
+                if(GRENADELOG) log("ModularWeapons / main / chatBonus / parameter: " + param);
                 let bonus = param.split("=")[1]
-                log("ModularWeapons / main / chatBonus / bonus: " + bonus);
                 let intSubString = parseInt(bonus.slice(1));
                 if(bonus.charAt(0) == '+' ){
                     if(intSubString){
                         chatBonus = intSubString;
+                        if(GRENADELOG) log("ModularWeapons / main / chatBonus / bonus: " + chatBonus);
                     }
                 }else if(bonus.charAt(0) == '-'){
                     if(intSubString){
                         chatBonus = -intSubString;
+                        if(GRENADELOG) log("ModularWeapons / main / chatBonus / bonus: " + chatBonus);
                     }
                 }else{
                     sendMessage(getChar("Clippy"), char, "I'm not sure what the 'tohitbonus'" +
@@ -300,30 +272,52 @@ on("chat:message", function(msg){
                 }
             }
         });
-        if(char == null){
-            sendMessage(getChar("Clippy"), null, "Who just tried to use a weapon?" + 
+        toHitBonus += chatBonus;
+        
+        if(!char){
+            sendMessage(getChar("Clippy"), null, "Who just tried to throw a grenade?" + 
                 " I don't know youuuuuuuuuu!");
             return;
         }
         
         // Calculate the hit die
         let toHitDie = randomInteger(20);
-        if(getAttrByName(char.get("id"), "attribute-strength") == undefined){
-            sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Strength attribute.");
+        
+        // Get attribute bonus
+        if(getAttribute(char, "attribute-strength")){
+            let attrToHitBonus = Math.floor((getAttribute(char, "attribute-strength")-10)/2);
+            if(GRENADELOG) log("Modular Weapons / !throwgrenade / attrToHitBonus: " + attrToHitBonus);
+            toHitBonus += attrToHitBonus;
+        }else{
+            sendMessage(getChar("Clippy"), char, "Bruh. This character is missing its Strength attribute.");
             return;
         }
-        let toHitBonus = parseInt(Math.floor((getAttrByName(char.get("id"), "attribute-strength")-10)/2)) + chatBonus;
-        if (getAttrByName(char.get("id"), "baseattackbonus") != undefined){
-            toHitBonus += parseInt(getAttrByName(char.get("id"), "baseattackbonus"));
+        
+        // Get BAB
+        if (getAttribute(char, "baseattackbonus")){
+            let bab = getAttribute(char, "baseattackbonus");
+            if(GRENADELOG) log("Modular Weapons / !throwgrenade / bab: " + bab);
+            toHitBonus += bab;
         }
+        
+        if(GRENADELOG) log("Modular Weapons / !throwgrenade / toHitBonus: " + toHitBonus);
         
         // Gather the damage dice and bonuses
         let effect = grenade["effect"];
-        if(getAttrByName(char.get("id"), "attribute-dexterity") == undefined){
+        let reflexSaveString = "";
+        if(!getAttribute(char, "attribute-dexterity")){
             sendChat("character|" + getChar("Clippy").get("id"), "/w " + char.get("name") + " Bruh. This character is missing its Dexterity attribute.");
             return;
+        }else{
+            let grenadeDcBonus = Math.floor(grenade["level"]/2);
+            let dexBonus =  Math.floor((getAttribute(char, "attribute-dexterity")-10)/2);
+            if(GRENADELOG){
+                log("Modular Weapons / !throwgrenade / grenadeDcBonus: " + grenadeDcBonus);
+                log("Modular Weapons / !throwgrenade / dexBonus: " + dexBonus);
+            }
+            reflexSaveString = "{{Reflex Save=half; DC [[10+" + grenadeDcBonus + "+" + dexBonus + "]]}}";
         }
-        let reflexSave = "{{Reflex Save=half; DC [[10+" + Math.floor(grenade["level"]/2) + "+" + Math.floor((getAttrByName(char.get("id"), "attribute-dexterity")-10)/2) + "]]}}";
+        
         
         let whisperToGM = false;
         if(getAttrByName(char.get("id"), "npc") == "yes"){
@@ -335,7 +329,7 @@ on("chat:message", function(msg){
         
         sendMessage(char, messageRecipient, "&{template:default} {{name=" + char.get("name") + " / " + 
             grenade["name"] + "}} {{To Hit=[[" + toHitDie + " + " + toHitBonus + "]]; DC 5}} {{Effect=" + effect +
-            "}}" + reflexSave + " {{Scatter=[Roll Here](!thrownscatter)}}")
+            "}}" + reflexSaveString + " {{Scatter=[Roll Here](!thrownscatter)}}")
             
     }else if(msg.content.indexOf("!thrownscatter") !== -1){
         let char = getChar(msg.who);
