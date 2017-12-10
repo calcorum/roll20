@@ -1,7 +1,14 @@
 function hpNotice(name, hp){
-    sendChat("Helper Bot", "Kill shot! " + name + "'s HP went to " + hp + ".");
+    sendChat("character|" + getChar("Clippy").get("id"), "Kill shot! " + name + "'s HP went to " + hp + ".");
 }
 
+function getAttribute(char, attrName){
+    let rawVal = getAttrByName(char.get("id"), attrName);
+    if (isNaN(rawVal)) return rawVal;
+    else return parseInt(rawVal);
+}
+
+/*
 // For PC hitpoint tracking
 on("change:attribute:current", function(obj) {
     if(obj.get("name") != "hitpoints"){
@@ -26,25 +33,46 @@ on("change:attribute:current", function(obj) {
             });
         }
     }
-});
+});*/
 
 // For NPC hitpoint tracking
-on("change:graphic:bar2_value", function(token) {
+on("change:graphic:bar3_value", function(token) {
     // Don't trigger if the token represents a character
     // NPCs never represent a character to keep their HPs from syncing
-    let bar2Value = token.get("bar2_value");
-    if(token.get("bar2_link") != ""){
+    let bar3Value = token.get("bar3_value");
+    if(token.get("bar3_link") != ""){
         return;
-    }else if(bar2Value < 0){
+    }else if(bar3Value < 0){
         token.set({
-            bar2_value: 0,
+            bar3_value: 0,
             statusmarkers: "dead",
         });
-        hpNotice(token.get("name"), bar2Value);
-    }else if(bar2Value == 0){
+        hpNotice(token.get("name"), bar3Value);
+    }else if(bar3Value === 0){
         token.set({
             statusmarkers: "dead",
         });
-        hpNotice(token.get("name"), bar2Value);
+        hpNotice(token.get("name"), bar3Value);
     }
+});
+
+// Assigning hit points and ACs to a newly assigned token
+on("change:graphic:represents", function(token){
+    let char = getObj("character", token.get("represents"));
+    let hitpoints = getAttribute(char, "hitpoints");
+    if(hitpoints){
+        token.set({
+            bar3_value: hitpoints,
+            bar3_max: hitpoints,
+            showplayers_bar3: true,
+            showplayers_name: true,
+        });
+    }
+    
+    let eac = getAttribute(char, "eac");
+    let kac = getAttribute(char, "kac");
+    // Set bar 1 to eac
+    if(eac) token.set("bar1_value", eac);
+    // Set bar 2 to kac
+    if(kac) token.set("bar2_value", kac);
 });
