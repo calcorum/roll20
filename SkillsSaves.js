@@ -9,34 +9,6 @@ let skillList = {"acrobatics":"dexterity", "athletics":"strength",
 };
 let saveList = {"fortitude":"constitution", "reflex":"dexterity", "will":"wisdom"}
 
-function getChar(charName){
-    let character = findObjs({
-        _type: "character",
-        name: charName,
-    })[0];
-    if(character != undefined) return character;
-    
-    switch(charName){
-        case 'Player Account': 
-            return findObjs({_type: "character",name: "Teste McButtface",})[0];
-        case 'Rogue Physicist':
-            return findObjs({_type: "character",name: "Riemann 2",})[0];
-        case 'Logan G.':
-            return findObjs({_type: "character",name: "Delta",})[0];
-        case 'Josh F.':
-            return findObjs({_type: "character",name: "Leb",})[0];
-        case 'Ryan K.':
-            return findObjs({_type: "character",name: "Roze",})[0];
-        default:
-            return null;
-    }
-}
-
-function sendMessage(from, to, msg){
-    let whisper = "";
-    if(to != null) whisper = "/w " + to.get("name").split(" ")[0];
-    sendChat("character|" + from.get("id"), whisper + " " + msg);
-}
 
 function errorBadSkill(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
@@ -48,10 +20,6 @@ function errorBadSave(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
         "trying to make a saving throw, but you must be too stupid to get the syntax " + 
         "correct! Your save input was: '" + input + "', but that ain't a save.");
-}
-
-function capitalizeFirst(string){
-    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function fixName(skill){
@@ -69,8 +37,10 @@ function fixName(skill){
     }
 }
 
-function rollCheck(char, skill, bonus){
-    sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + "}} {{" +
+function rollCheck(char, skill, bonus, checkName){
+    if(checkName.length < 1) checkName = "";
+    else checkName = " / " + checkName;
+    sendMessage(char, null, "&{template:default} {{name=" + char.get("name") + checkName + "}} {{" +
         fixName(skill) + " Check=[[1d20+" + bonus + "]]}}")
 }
 
@@ -93,7 +63,7 @@ on("chat:message", function(msg){
             return;
         }
         let chatBonus = 0, attBonus = 0, skRanks = 0, skBonus = 0;
-        let skillName = "";
+        let skillName = "", checkName = "";
         
         let rawInput = msg.content.replace("!skill ","");
         // Make sure there is something listed where the skill should be
@@ -101,44 +71,42 @@ on("chat:message", function(msg){
         let input = rawInput.split(" ");
         skillName = input[0];
         // Make sure what is listed first is a skill
-        if(skillList[skillName] == undefined){
+        if(!skillList[skillName]){
             errorBadSkill(skillName, char);
             return;
         }
         // Get skill bonus from attributes
-        skBonus = parseInt(getAttrByName(char.get("id"), "skill-" + skillName, "max"));
+        skBonus = getAttribute(char, "skill-" + skillName, "max");
         if(isNaN(skBonus)) skBonus = 0;
         // Get skill ranks
-        skRanks = parseInt(getAttrByName(char.get("id"), "skill-" + skillName, "current"));
+        skRanks = getAttribute(char, "skill-" + skillName);
         if(isNaN(skRanks)) skRanks = 0;
         // get attribute bonus
-        attBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "attribute-" + skillList[skillName])-10)/2);
+        attBonus = Math.floor((getAttribute(char, "attribute-" + skillList[skillName])-10)/2);
         if(isNaN(attBonus)) attBonus = 0;
         // Check for bonus typed into chat
-        if(input[1] != undefined){
-            intSubString = parseInt(input[1].slice(1));
-            if(input[1].charAt(0) == '+' ){
-                if(intSubString){
-                    chatBonus = intSubString;
-                }
-            }else if(input[1].charAt(0) == '-'){
-                if(intSubString){
-                    chatBonus = -intSubString;
-                }
-            }else{
-                sendMessage(getChar("Clippy"), char, "Yo - imma roll this check for you, " +
-                    "but I'm not including the bonus you typed. I don't recognize this: " + 
-                    input[1]);
+        _.each(input, function(param){
+            if(param.indexOf("charname") != -1){
+                char = getChar(param.split("=")[1]);
+            }else if(param.indexOf("+") != -1){
+                let bonus = parseInt(param.slice(1));
+                chatBonus = bonus;
+            }else if(param.indexOf("-") != -1){
+                let penalty = parseInt(param.slice(1));
+                chatBonus = -penalty;
+            }else if(param.indexOf("checkname") != -1){
+                checkName = param.split("=")[1];
             }
-        }
+        });
         
-        log("Skills / Character: " + char.get("name"));
-        log("Skills / skBonus: " + skBonus);
-        log("Skills / skRanks: " + skRanks);
-        log("Skills / attBonus: " + attBonus);
-        log("Skills / chatBonus: " + chatBonus);
+        log("SkillsSaves / main / Character: " + char.get("name"));
+        log("SkillsSaves / main / skill: " + skillName);
+        log("SkillsSaves / main / skBonus: " + skBonus);
+        log("SkillsSaves / main / skRanks: " + skRanks);
+        log("SkillsSaves / main / attBonus: " + attBonus);
+        log("SkillsSaves / main / chatBonus: " + chatBonus);
         
-        rollCheck(char, skillName, skBonus + skRanks + attBonus + chatBonus);
+        rollCheck(char, skillName, skBonus + skRanks + attBonus + chatBonus, checkName);
     }else if(msg.content.indexOf("!save ") !== -1){
         let char = getChar(msg.who);
         if(char == null) {
@@ -159,31 +127,26 @@ on("chat:message", function(msg){
             return;
         }
         // Get attribute bonus
-        attBonus = parseInt(Math.floor(getAttrByName(char.get("id"), "attribute-" + saveList[saveName])-10)/2);
+        attBonus = Math.floor(getAttribute(char, "attribute-" + saveList[saveName])-10)/2;
         if(isNaN(attBonus)) skBonus = 0;
         // Get base save
-        baseSave = parseInt(getAttrByName(char.get("id"), "save-" + saveName, "current"));
+        baseSave = getAttribute(char, "save-" + saveName);
         if(isNaN(baseSave)) baseSave = 0;
         // Get misc bonus
-        miscBonus = parseInt(getAttrByName(char.get("id"), "save-" + saveName, "max"));
+        miscBonus = getAttribute(char, "save-" + saveName, "max");
         if(isNaN(miscBonus)) miscBonus = 0;
         // Get chat bonus
-        if(input[1] != undefined){
-            intSubString = parseInt(input[1].slice(1));
-            if(input[1].charAt(0) == '+' ){
-                if(intSubString){
-                    chatBonus = intSubString;
-                }
-            }else if(input[1].charAt(0) == '-'){
-                if(intSubString){
-                    chatBonus = -intSubString;
-                }
-            }else{
-                sendMessage(getChar("Clippy"), char, "Yo - imma throw this save for you, " +
-                    "but I'm not including the bonus you typed. I don't recognize this: " + 
-                    input[1]);
+        _.each(input, function(param){
+            if(param.indexOf("charname") != -1){
+                char = getChar(param.split("=")[1]);
+            }else if(param.indexOf("+") != -1){
+                let bonus = parseInt(param.slice(1));
+                chatBonus = bonus;
+            }else if(param.indexOf("-") != -1){
+                let penalty = parseInt(param.slice(1));
+                chatBonus = -penalty;
             }
-        }
+        });
         
         log("Saves / Character: " + char.get("name"));
         log("Saves / attBonus: " + attBonus);
@@ -192,5 +155,10 @@ on("chat:message", function(msg){
         log("Saves / chatBonus: " + chatBonus);
         
         rollSave(char, saveName, attBonus + baseSave + miscBonus + chatBonus);
+    }
+    
+    if(msg.content.indexOf("!skillmacro") !== -1){
+        let char = getChar(msg.who);
+        sendMessage(getChar("Clippy"), char, "Please update your skill macro from 'Skills-List' to 'Skill-Checks'. That is the new drop-down interface.");
     }
 });
