@@ -9,7 +9,6 @@ let skillList = {"acrobatics":"dexterity", "athletics":"strength",
 };
 let saveList = {"fortitude":"constitution", "reflex":"dexterity", "will":"wisdom"}
 
-
 function errorBadSkill(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
         "trying to roll a skill, but you must be too stupid to get the syntax " + 
@@ -20,6 +19,12 @@ function errorBadSave(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
         "trying to make a saving throw, but you must be too stupid to get the syntax " + 
         "correct! Your save input was: '" + input + "', but that ain't a save.");
+}
+
+function sendSkillDetailsToChar(char, skName, skBonus, skRanks, attBonus, chatBonus){
+    sendMessage(getChar("Clippy"), char, "&{template:default} {{name=" + char.get("name") + " " +
+        fixName(skName) + " Log}} {{Skill Ranks=" + skRanks + "}} {{Skill Bonus=" + skBonus + "}} {{" +
+        "Attribute Bonus=" + attBonus + "}} {{Chat Bonus=" + chatBonus + "}}");
 }
 
 function fixName(skill){
@@ -86,15 +91,19 @@ on("chat:message", function(msg){
         if(isNaN(attBonus)) attBonus = 0;
         // Check for bonus typed into chat
         _.each(input, function(param){
-            if(param.indexOf("charname") != -1){
+            if(param.indexOf("charname") === 0){
+                log("alpha");
                 char = getChar(param.split("=")[1]);
-            }else if(param.indexOf("+") != -1){
+            }else if(param.indexOf("+") === 0){
+                log("bravo");
                 let bonus = parseInt(param.slice(1));
                 chatBonus = bonus;
-            }else if(param.indexOf("-") != -1){
+            }else if(param.indexOf("-") === 0){
+                log("charlie / param: " + param);
                 let penalty = parseInt(param.slice(1));
                 chatBonus = -penalty;
-            }else if(param.indexOf("checkname") != -1){
+            }else if(param.indexOf("checkname") === 0){
+                log("delta");
                 checkName = param.split("=")[1];
             }
         });
@@ -106,6 +115,7 @@ on("chat:message", function(msg){
         log("SkillsSaves / main / attBonus: " + attBonus);
         log("SkillsSaves / main / chatBonus: " + chatBonus);
         
+        sendSkillDetailsToChar(char, skillName, skBonus, skRanks, attBonus, chatBonus);
         rollCheck(char, skillName, skBonus + skRanks + attBonus + chatBonus, checkName);
     }else if(msg.content.indexOf("!save ") !== -1){
         let char = getChar(msg.who);
@@ -122,7 +132,7 @@ on("chat:message", function(msg){
         let input = rawInput.split(" ");
         saveName = input[0];
         // Make sure what is listed first is a save
-        if(saveList[saveName] == undefined){
+        if(!saveList[saveName]){
             errorBadSave(saveName, char);
             return;
         }
@@ -137,12 +147,12 @@ on("chat:message", function(msg){
         if(isNaN(miscBonus)) miscBonus = 0;
         // Get chat bonus
         _.each(input, function(param){
-            if(param.indexOf("charname") != -1){
+            if(param.indexOf("charname") === 0){
                 char = getChar(param.split("=")[1]);
-            }else if(param.indexOf("+") != -1){
+            }else if(param.indexOf("+") === 0){
                 let bonus = parseInt(param.slice(1));
                 chatBonus = bonus;
-            }else if(param.indexOf("-") != -1){
+            }else if(param.indexOf("-") === 0){
                 let penalty = parseInt(param.slice(1));
                 chatBonus = -penalty;
             }
