@@ -1,3 +1,4 @@
+const CHARLOG = false;
 let skillList = {"acrobatics":"dexterity", "athletics":"strength", 
     "bluff":"charisma", "computers":"intelligence", "culture":"intelligence", 
     "diplomacy":"charisma", "disguise":"charisma", "engineering":"intelligence", 
@@ -25,6 +26,12 @@ function sendSkillDetailsToChar(char, skName, skBonus, skRanks, attBonus, chatBo
     sendMessage(getChar("Clippy"), char, "&{template:default} {{name=" + char.get("name") + " " +
         fixName(skName) + " Log}} {{Skill Ranks=" + skRanks + "}} {{Skill Bonus=" + skBonus + "}} {{" +
         "Attribute Bonus=" + attBonus + "}} {{Chat Bonus=" + chatBonus + "}}");
+}
+
+function sendSaveDetailsToChar(char, saveName, baseSave, miscBonus, attBonus, chatBonus){
+    sendMessage(getChar("Clippy"), char, "&{template:default} {{name=" + char.get("name") + " " +
+        capitalizeFirst(saveName) + " Log}} {{Base Save=" + baseSave + "}} {{Attribute Bonus=" + attBonus + "}} {{" +
+        "Misc Bonus=" + miscBonus + "}} {{Chat Bonus=" + chatBonus + "}}");
 }
 
 function fixName(skill){
@@ -115,7 +122,7 @@ on("chat:message", function(msg){
         log("SkillsSaves / main / attBonus: " + attBonus);
         log("SkillsSaves / main / chatBonus: " + chatBonus);
         
-        sendSkillDetailsToChar(char, skillName, skBonus, skRanks, attBonus, chatBonus);
+        if(CHARLOG) sendSkillDetailsToChar(char, skillName, skBonus, skRanks, attBonus, chatBonus);
         rollCheck(char, skillName, skBonus + skRanks + attBonus + chatBonus, checkName);
     }else if(msg.content.indexOf("!save ") !== -1){
         let char = getChar(msg.who);
@@ -164,6 +171,7 @@ on("chat:message", function(msg){
         log("Saves / miscBonus: " + miscBonus);
         log("Saves / chatBonus: " + chatBonus);
         
+        if(CHARLOG) sendSaveDetailsToChar(char, saveName, baseSave, miscBonus, attBonus, chatBonus);
         rollSave(char, saveName, attBonus + baseSave + miscBonus + chatBonus);
     }
     
