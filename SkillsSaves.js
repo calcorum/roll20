@@ -12,13 +12,13 @@ let saveList = {"fortitude":"constitution", "reflex":"dexterity", "will":"wisdom
 
 function errorBadSkill(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
-        "trying to roll a skill, but you must be too stupid to get the syntax " + 
+        "trying to roll a skill, but you must not be competent enough to get the syntax " + 
         "correct! Your skill input was: '" + input + "', but that ain't a skill.");
 }
 
 function errorBadSave(input, character){
     sendMessage(getChar("Clippy"), character, "Hi there! It looks like you're " + 
-        "trying to make a saving throw, but you must be too stupid to get the syntax " + 
+        "trying to make a saving throw, but you must not be competent enough to get the syntax " + 
         "correct! Your save input was: '" + input + "', but that ain't a save.");
 }
 
