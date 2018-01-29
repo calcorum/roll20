@@ -2,12 +2,6 @@ function hpNotice(name, hp){
     sendChat("character|" + getChar("Clippy").get("id"), "Kill shot! " + name + "'s HP went to " + hp + ".");
 }
 
-function getAttribute(char, attrName){
-    let rawVal = getAttrByName(char.get("id"), attrName);
-    if (isNaN(rawVal)) return rawVal;
-    else return parseInt(rawVal);
-}
-
 /*
 // For PC hitpoint tracking
 on("change:attribute:current", function(obj) {
@@ -58,21 +52,23 @@ on("change:graphic:bar3_value", function(token) {
 
 // Assigning hit points and ACs to a newly assigned token
 on("change:graphic:represents", function(token){
-    let char = getObj("character", token.get("represents"));
-    let hitpoints = getAttribute(char, "hitpoints");
-    if(hitpoints){
-        token.set({
-            bar3_value: hitpoints,
-            bar3_max: hitpoints,
-            showplayers_bar3: true,
-            showplayers_name: true,
-        });
+    let char = getObj("character", token.get("represents")) || null;
+    if(char){
+        let hitpoints = getAttribute(char, "hitpoints");
+        if(hitpoints){
+            token.set({
+                bar3_value: hitpoints,
+                bar3_max: hitpoints,
+                showplayers_bar3: true,
+                showplayers_name: true,
+            });
+        }
+        
+        let eac = getAttribute(char, "eac");
+        let kac = getAttribute(char, "kac");
+        // Set bar 1 to eac
+        if(eac) token.set("bar1_value", eac);
+        // Set bar 2 to kac
+        if(kac) token.set("bar2_value", kac);
     }
-    
-    let eac = getAttribute(char, "eac");
-    let kac = getAttribute(char, "kac");
-    // Set bar 1 to eac
-    if(eac) token.set("bar1_value", eac);
-    // Set bar 2 to kac
-    if(kac) token.set("bar2_value", kac);
 });
