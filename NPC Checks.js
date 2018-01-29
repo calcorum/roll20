@@ -83,11 +83,27 @@ function getOutputBySave(saveName, currentValue){
 
 // find character sent via API call
 function getChar(charName){
-    return findObjs({
+    let character = findObjs({
         _type: "character",
         name: charName,
     })[0];
+    if(character) return character;
+    switch(charName){
+        case 'Player Account': 
+            return findObjs({_type: "character",name: "Teste McButtface",})[0];
+        case 'Rogue Physicist':
+            return findObjs({_type: "character",name: "Riemann 2",})[0];
+        case 'Logan G.':
+            return findObjs({_type: "character",name: "Delta 1",})[0];
+        case 'Josh F.':
+            return findObjs({_type: "character",name: "Leb",})[0];
+        case 'Ryan K.':
+            return findObjs({_type: "character",name: "Roze",})[0];
+        default:
+            return null;
+    }
 }
+
 // get attributes associated with character
 function getAttrs(charObj){
     return findObjs({
@@ -105,7 +121,7 @@ on("chat:message", function(msg){
         let attributes = getAttrs(char);
         
         // if attribute name starts with "skill-" and is greater than 0,
-        //   add it to the skillString
+        // add it to the skillString
         _.each(attributes, function(att){
             let attName = att.get("name");
             let attCurrent = att.get("current");
