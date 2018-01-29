@@ -2,15 +2,17 @@ let ship = {
     "captain":0,
     "engineer":0,
     "gunner":0,
-    "pilot":0,
-    "science":0,
-    "name":"Loreseeker",
-    "tier":2,
+    "pilot":1,
+    "science":2,
+    "name":"Sunrise Maiden",
+    "tier":3,
 };
 
 let shipWeapons = {
+    "flakthrower":{"name":"Flak Thrower", "damage":"3d4"},
+    "gyrolaser":{"name":"Gyrolaser", "damage":"1d8"},
     "lightlasercannon":{"name":"Light Laser Cannon", "damage":"2d4"},
-    "coilgun":{"name":"Coilgun", "damage":"4d4"},
+    "lightparticlebeam":{"name":"Light Particle Beam", "damage":"3d6"},
 };
 
 let shipSkillList = {"acrobatics":"dexterity", "athletics":"strength", 
@@ -24,12 +26,12 @@ let shipSkillList = {"acrobatics":"dexterity", "athletics":"strength",
 };
 
 let stuntDcs = {
-    "backoff":10 + 2 * ship["tier"],
-    "barrelroll":10 + 2 * ship["tier"],
-    "evade":10 + 2 * ship["tier"],
-    "flipandburn":15 + 2 * ship["tier"],
-    "flyby":"20 + 2 * Enemy Ship Tier",
-    "slide":10 + 2 * ship["tier"],
+    "backoff":10 + 1.5 * ship["tier"],
+    "barrelroll":10 + 1.5 * ship["tier"],
+    "evade":10 + 1.5 * ship["tier"],
+    "flipandburn":15 + 1.5 * ship["tier"],
+    "flyby":"15 + 1.5 * Enemy Ship Tier",
+    "slide":10 + 1.5 * ship["tier"],
 };
 
 let stuntName = {
@@ -40,35 +42,6 @@ let stuntName = {
     "flyby":"Fly By",
     "slide":"Slide",
 };
-
-function sendMessage(from, to, msg){
-    let whisper = "";
-    if(to != null) whisper = "/w " + to.get("name").split(" ")[0];
-    sendChat("character|" + from.get("id"), whisper + " " + msg);
-}
-
-function getChar(charName){
-    let character = findObjs({
-        _type: "character",
-        name: charName,
-    })[0];
-    if(character != undefined) return character;
-    
-    switch(charName){
-        case 'Player Account': 
-            return findObjs({_type: "character",name: "Teste McButtface",})[0];
-        case 'Rogue Physicist':
-            return findObjs({_type: "character",name: "Riemann 2",})[0];
-        case 'Logan G.':
-            return findObjs({_type: "character",name: "Delta",})[0];
-        case 'Josh F.':
-            return findObjs({_type: "character",name: "Leb",})[0];
-        case 'Ryan K.':
-            return findObjs({_type: "character",name: "Roze",})[0];
-        default:
-            return null;
-    }
-}
 
 function rollShipCheck(char, role, action, skill, chatBonus, dc){
     let attBonus = 0, skRanks = 0, skBonus = 0, totalBonus = 0;
@@ -241,7 +214,7 @@ on("chat:message", function(msg){
                             sendMessage(getChar("Clippy"), char, "You're missing the skill option for this check.");
                             break;
                         }
-                        rollShipCheck(char, "Captain", "Taunt", option, 0, "15 + 2 * Enemy Ship Tier");
+                        rollShipCheck(char, "Captain", "Taunt", option, 0, "15 + 1.5 * Enemy Ship Tier");
                         break;
                     case "encourage":
                         if(option == undefined){
@@ -251,7 +224,7 @@ on("chat:message", function(msg){
                         rollShipCheck(char, "Captain", "Encourage", option, 0, (option == "diplomacy") ? 15+ship["tier"] : 10);
                         break;
                     case "demand":
-                        rollShipCheck(char, "Captain", "Demand", "intimidate", 0, 15 + 2 * ship["tier"]);
+                        rollShipCheck(char, "Captain", "Demand", "intimidate", 0, 15 + 1.5 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
@@ -280,10 +253,10 @@ on("chat:message", function(msg){
                         rollShipCheck(char, "Engineer", "Patch", "engineering", 0, "[Check Here](http://journal.roll20.net/handout/-Kx6XXnQdz_gPlUFIdXF)");
                         break;
                     case "holdittogether":
-                        rollShipCheck(char, "Engineer", "Hold It Together", "engineering", 0, 15 + 2 * ship["tier"]);
+                        rollShipCheck(char, "Engineer", "Hold It Together", "engineering", 0, 15 + 1.5 * ship["tier"]);
                         break;
                     case "divert":
-                        rollShipCheck(char, "Engineer", "Divert", "engineering", 0, 10 + 2 * ship["tier"]);
+                        rollShipCheck(char, "Engineer", "Divert", "engineering", 0, 10 + 1.5 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
@@ -309,14 +282,14 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "shoot":
-                        if(option == undefined){
+                        if(!option){
                             sendMessage(getChar("Clippy"), char, "You're missing the weapon for this check.");
                             break;
                         }
                         rollGunneryCheck(char, "Shoot", option, 0);
                         break;
                     case "fireatwill":
-                        if(option == undefined){
+                        if(!option){
                             sendMessage(getChar("Clippy"), char, "You're missing the weapon for this check.");
                             break;
                         }
@@ -354,7 +327,7 @@ on("chat:message", function(msg){
                         rollShipCheck(char, "Pilot", stuntName[option], "piloting", 0, stuntDcs[option]);
                         break;
                     case "maneuver":
-                        rollShipCheck(char, "Pilot", "Maneuver", "piloting", 0, 15 + 2 * ship["tier"]);
+                        rollShipCheck(char, "Pilot", "Maneuver", "piloting", 0, 15 + 1.5 * ship["tier"]);
                         break;
                     case "fly":
                         rollShipCheck(char, "Pilot", "Fly", "piloting", 0, "None");
@@ -383,13 +356,13 @@ on("chat:message", function(msg){
                         }
                         break;
                     case "targetsystem":
-                        rollShipCheck(char, "Science Officer", "Target System", "computers", 0, "15 + Enemy Ship Tier + Enemy Countermeasures");
+                        rollShipCheck(char, "Science Officer", "Target System", "computers", 0, "5 + (1.5 * Enemy Ship Tier) + Enemy Countermeasures");
                         break;
                     case "scan":
-                        rollShipCheck(char, "Science Officer", "Scan", "computers", 0, "10 + Enemy Ship Tier + Enemy Countermeasures");
+                        rollShipCheck(char, "Science Officer", "Scan", "computers", 0, "5 + (1.5 * Enemy Ship Tier) + Enemy Countermeasures");
                         break;
                     case "balance":
-                        rollShipCheck(char, "Science Officer", "Balance", "computers", 0, 15 + 2 * ship["tier"]);
+                        rollShipCheck(char, "Science Officer", "Balance", "computers", 0, 10 + 1.5 * ship["tier"]);
                         break;
                     default:
                         errorBadAction(action, role, char);
